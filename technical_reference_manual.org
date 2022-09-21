@@ -396,22 +396,59 @@ SEM Controllerの Heartbeat信号が停止した事を示す通知ビットで�
 このエラーが発生した後は、SEM Controllerが正常に動作していない可能性があります。
 そのため、このエラーが発生した場合はシステムを再起動する事を推奨します。
 
+** Board Health Monitor
+System Monitorでは、ハードウェアスケジューラによって制御されたタイミングで、SC OBC Board上のセンサーデバイス(Current Voltage Monitor および Temperature Sensor へ I2C通信を行い、読み出した電源電圧、温度のデータを System Monitorのレジスタへ格納します。
+これにより、ソフトウェアでは System Monitorのレジスタの読み出しのみを行うことで、SC OBC Board上の電源電圧、温度のデータを取得する事ができます。
+
+Board Health Monitor機能の概要を以下に記載します。
+
+| 機能                              | 説明                                                                                                                                                                                                                                                                                              |
+|-----------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| デバイスの初期設定                | ソフトウェアより System Monitorへ初期設定書き込み要求を発行することで、センサーデバイスの初期設定を行います。初期設定が行われるデバイスアドレスや設定値は、インプリメント時のパラメータにより指定します。                                                                                         |
+| 測定データの自動取得              | ソフトウェアが介在することなく定期的にI2Cリードアクセスを行い、センサーデバイスが測定した各データを System Monitorのレジスタに格納します。この機能を使用するには、事前に Board Health Monitorの設定と、データの取得タイミングの管理を行う General Purpose Timerの設定をソフトウェアより行います。 |
+| ソフトウェア指示によるI2Cアクセス | ソフトウェアが指定する特定のセンサーデバイスのデバイスレジスタへ、I2C書き込み/読み出しアクセスを行います。                                                                                                                                                                                        |
+
 ** レジスタ詳細
 System Monitorは、Base Address 0x4F04_0000に配置されています。
 
 #+CAPTION: System Monitorメモリマップ
-|                 Address | Symbol              | Register                                 |    Initial |
-|-------------------------+---------------------+------------------------------------------+------------|
-|              0x4F040000 | SYSMON_WDOG_CTRL    | Watchdog Control Register                | 0x00075A5A |
-|              0x4F040010 | SYSMON_WDOG_SIVAL   | Watchdog Signal Interval Register        | 0x00B71AFF |
-|              0x4F040030 | SYSMON_INT_STATUS   | System Monitor Interrupt Status Register | 0x00000000 |
-|              0x4F040034 | SYSMON_INT_ENABLE   | System Monitor Interrupt Enable Register | 0x00000000 |
-|              0x4F040040 | SYSMON_SEM_STATE    | SEM Controller State Register            | 0x00000000 |
-|              0x4F040044 | SYSMON_SEM_ECCOUNT  | SEM Error Correction Count Register      | 0x00000000 |
-|              0x4F040048 | SYSMON_SEM_HTIMEOUT | SEM Heartbeat Timeout Register           | 0x000000FF |
-|              0x4F040050 | SYSMON_SEM_EINJECT1 | SEM Error Injection Command Register 1   | 0x00000000 |
-|              0x4F040054 | SYSMON_SEM_EINJECT2 | SEM Error Injection Command Register 2   | 0x00000000 |
-| 0x4F041000 - 0x4F041FFF | SYSMON_XADC_REG     | XADC Register Window                     | ---------- |
+|                 Address | Symbol                  | Register                                                  |    Initial |
+|-------------------------+-------------------------+-----------------------------------------------------------+------------|
+|              0x4F040000 | SYSMON_WDOG_CTRL        | Watchdog Control Register                                 | 0x00075A5A |
+|              0x4F040010 | SYSMON_WDOG_SIVAL       | Watchdog Signal Interval Register                         | 0x00B71AFF |
+|              0x4F040030 | SYSMON_INT_STATUS       | System Monitor Interrupt Status Register                  | 0x00000000 |
+|              0x4F040034 | SYSMON_INT_ENABLE       | System Monitor Interrupt Enable Register                  | 0x00000000 |
+|              0x4F040040 | SYSMON_SEM_STATE        | SEM Controller State Register                             | 0x00000000 |
+|              0x4F040044 | SYSMON_SEM_ECCOUNT      | SEM Error Correction Count Register                       | 0x00000000 |
+|              0x4F040048 | SYSMON_SEM_HTIMEOUT     | SEM Heartbeat Timeout Register                            | 0x000000FF |
+|              0x4F040050 | SYSMON_SEM_EINJECT1     | SEM Error Injection Command Register 1                    | 0x00000000 |
+|              0x4F040054 | SYSMON_SEM_EINJECT2     | SEM Error Injection Command Register 2                    | 0x00000000 |
+| 0x4F041000 - 0x4F041FFF | SYSMON_XADC_REG         | XADC Register Window                                      | ---------- |
+|              0x4F042000 | SYSMON_BHM_INICTLR      | Board Health Initialization Access Control Register       | 0x0000001F |
+|              0x4F042004 | SYSMON_BHM_MONCTLR      | Board Health Monitoring Access Control Register           | 0x00000000 |
+|              0x4F042010 | SYSMON_BHM_ISR          | Board Health Interrupt Status Register                    | 0x00000000 |
+|              0x4F042014 | SYSMON_BHM_IER          | Board Health Interrupt Enable Register                    | 0x00000000 |
+|              0x4F042020 | SYSMON_BHM_1V0SNTVR     | Board Health VDD_1V0 Shunt Voltage Monitor Register       | 0x80000000 |
+|              0x4F042024 | SYSMON_BHM_1V0BUSVR     | Board Health VDD_1V0 Bus Voltage Monitor Register         | 0x80000000 |
+|              0x4F042028 | SYSMON_BHM_1V8SNTVR     | Board Health VDD_1V8 Shunt Voltage Monitor Register       | 0x80000000 |
+|              0x4F04202C | SYSMON_BHM_1V8BUSVR     | Board Health VDD_1V8 Bus Voltage Monitor Register         | 0x80000000 |
+|              0x4F042030 | SYSMON_BHM_3V3SNTVR     | Board Health VDD_3V3 Shunt Voltage Monitor Register       | 0x80000000 |
+|              0x4F042034 | SYSMON_BHM_3V3BUSVR     | Board Health VDD_3V3 Bus Voltage Monitor Register         | 0x80000000 |
+|              0x4F042038 | SYSMON_BHM_3V3SYSASNTVR | Board Health VDD_3V3_SYS_A Shunt Voltage Monitor Register | 0x80000000 |
+|              0x4F04203C | SYSMON_BHM_3V3SYSABUSVR | Board Health VDD_3V3_SYS_A Bus Voltage Monitor Register   | 0x80000000 |
+|              0x4F042040 | SYSMON_BHM_3V3SYSBSNTVR | Board Health VDD_3V3_SYS_B Shunt Voltage Monitor Register | 0x80000000 |
+|              0x4F042044 | SYSMON_BHM_3V3SYSBBUSVR | Board Health VDD_3V3_SYS_B Bus Voltage Monitor Register   | 0x80000000 |
+|              0x4F042048 | SYSMON_BHM_3V3IOSNTVR   | Board Health VDD_3V3_IO Shunt Voltage Monitor Register    | 0x80000000 |
+|              0x4F04204C | SYSMON_BHM_3V3IOBUSVR   | Board Health VDD_3V3_IO Bus Voltage Monitor Register      | 0x80000000 |
+|              0x4F042050 | SYSMON_BHM_TEMP1R       | Board Health Temperature1 Monitor Register                | 0x80000000 |
+|              0x4F042054 | SYSMON_BHM_TEMP2R       | Board Health Temperature2 Monitor Register                | 0x80000000 |
+|              0x4F042058 | SYSMON_BHM_TEMP3R       | Board Health Temperature3 Monitor Register                | 0x80000000 |
+|              0x4F042060 | SYSMON_BHM_SWCTLR       | Board Health Software Access Control Register             | 0x00000000 |
+|              0x4F042064 | SYSMON_BHM_SWWDTR       | Board Health Software Access Write Data Register          | 0x00000000 |
+|              0x4F042068 | SYSMON_BHM_SWRDTR       | Board Health Software Access Read Data Register           | 0x00000000 |
+|              0x4F042080 | SYSMON_BHM_I2CPSCR      | Board Health I2C Prescale Setting Register                | 0x00000077 |
+|              0x4F042084 | SYSMON_BHM_I2CACCCNTR   | Board Health I2C Access Count Setting Register            | 0x00000002 |
+|              0x4F0420C0 | SYSMON_BHM_ASR          | Board Health Access Status Register                       | 0x00000000 |
 
 *** Watchdog Control Register (Offset 0x0000)
 Watchdog Control Registerは、SC OBC FPGAの Watchdogの制御を行うためのレジスタです。
@@ -618,6 +655,596 @@ Status Registerにアクセスするためのレジスタアドレスを以下�
 | 0x4F041270 | Min VCCBRAM        | 電源投入または最後に XADCをリセットしてから記録された最小VCCBRAM測定値が格納されます。                         |
 
 System Monitorの XADC Register Windowからは、XADCのすべてのレジスタ領域にアクセスする事ができますが、アラーム機能は現状実装されておりません。
+
+*** Board Health Initialization Access Control Register (Offset 0x2000)
+Board Health Initialization Access Control Registerは、Current Voltage MonitorとTemperature Sensorへ初期設定の書き込みを行う自動I2Cアクセスの制御を行うためのレジスタです。
+
+Initialization Requestビットを"1"にセットした時に、Initialization Enableビットが"1"となっているデバイスへ、予め決められたアドレス、データによるI2Cライトアクセスを行います。
+Initialization RequestビットとInitialization Enableビットは、同時にセットすることができます。
+
+初期設定の書き込みを行うレジスタ数、レジスタアドレス、ライトデータは、インプリメント時のパラメータにより指定します。
+
+#+CAPTION: Board Health Initialization Access Control Register ビットフィールド
+|   bit | Symbol                 | Field                                          | Description                                                                                                                                                                                                             | R/W |
+|-------+------------------------+------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
+| 31:17 | -                      | Reserved                                       | Reserved                                                                                                                                                                                                                | -   |
+|    16 | SYSMON_BHM_INITREQ     | Initialization Request                         | このビットに"1"をセットすることで、初期設定の書き込みを行う自動I2Cアクセスを開始します。 このビットのセット時にInitialization Enableとなっていた全てのデバイスの初期設定が終了すると、このビットは自動で"0"に戻ります。 | R/W |
+|  15:5 | -                      | Reserved                                       | Reserved                                                                                                                                                                                                                | -   |
+|     4 | SYSMON_BHM_TEMP3INITEN | Temperature Sensor3 Initialization Enable      | Temperature Sensor3へ初期設定の書き込みを行う自動I2CアクセスのEnable設定を行います。 0: Temperature Sensor3 Initialization Disable 1: Temperature Sensor3 Initialization Enable                                         | R/W |
+|     3 | SYSMON_BHM_TEMP2INITEN | Temperature Sensor2 Initialization Enable      | Temperature Sensor2へ初期設定の書き込みを行う自動I2CアクセスのEnable設定を行います。 0: Temperature Sensor2 Initialization Disable 1: Temperature Sensor2 Initialization Enable                                         | R/W |
+|     2 | SYSMON_BHM_TEMP1INITEN | Temperature Sensor1 Initialization Enable      | Temperature Sensor1へ初期設定の書き込みを行う自動I2CアクセスのEnable設定を行います。 0: Temperature Sensor1 Initialization Disable 1: Temperature Sensor1 Initialization Enable                                         | R/W |
+|     1 | SYSMON_BHM_CVM2INITEN  | Current Voltage Monitor2 Initialization Enable | Current Voltage Monitor2へ初期設定の書き込みを行う自動I2CアクセスのEnable設定を行います。 0: Current Voltage Monitor2 Initialization Disable 1: Current Voltage Monitor2 Initialization Enable                          | R/W |
+|     0 | SYSMON_BHM_CVM1INITEN  | Current Voltage Monitor1 Initialization Enable | Current Voltage Monitor1へ初期設定の書き込みを行う自動I2CアクセスのEnable設定を行います。 0: Current Voltage Monitor1 Initialization Disable 1: Current Voltage Monitor1 Initialization Enable                          | R/W |
+
+*** Board Health Monitoring Access Control Register (Offset 0x2004)
+Board Health Monitoring Access Control Registerは、Current Voltage MonitorとTemperature Sensorより測定結果の読み出しを行う自動I2Cアクセスの制御を行うためのレジスタです。
+
+対象となるセンサー種別のMonitoring Trigger信号を受信した時に、Monitoring Enableビットが"1"となっているデバイスへ、測定データのI2Cリードアクセスを行います。
+
+#+CAPTION: Board Health Monitoring Access Control Register ビットフィールド
+|  bit | Symbol                 | Field                                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                         | R/W |
+|------+------------------------+--------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
+| 31:5 | -                      | Reserved                                   | Reserved                                                                                                                                                                                                                                                                                                                                                                                                                                                            | -   |
+|    4 | SYSMON_BHM_TEMP3MONIEN | Temperature Sensor3 Monitoring Enable      | Temperature Sensor3より温度データの読み出しを行う自動I2CアクセスのEnable設定を行います。このビットが"1"の時にTemperature Sensor Monitoring Triggerを受信すると、Temperature Sensor3へ温度データを読み出すためのI2Cアクセスを行います。ATTEMP3I2CERR割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 0: Temperature Sensor3 Monitoring Disable 1: Temperature Sensor3 Monitoring Enable                                                             | R/W |
+|    3 | SYSMON_BHM_TEMP2MONIEN | Temperature Sensor2 Monitoring Enable      | Temperature Sensor2より温度データの読み出しを行う自動I2CアクセスのEnable設定を行います。このビットが"1"の時にTemperature Sensor Monitoring Triggerを受信すると、Temperature Sensor2へ温度データを読み出すためのI2Cアクセスを行います。ATTEMP2I2CERR割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 0: Temperature Sensor2 Monitoring Disable 1: Temperature Sensor2 Monitoring Enable                                                             | R/W |
+|    2 | SYSMON_BHM_TEMP1MONIEN | Temperature Sensor1 Monitoring Enable      | Temperature Sensor1より温度データの読み出しを行う自動I2CアクセスのEnable設定を行います。このビットが"1"の時にTemperature Sensor Monitoring Triggerを受信すると、Temperature Sensor1へ温度データを読み出すためのI2Cアクセスを行います。ATTEMP1I2CERR割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 0: Temperature Sensor1 Monitoring Disable 1: Temperature Sensor1 Monitoring Enable                                                             | R/W |
+|    1 | SYSMON_BHM_CVM2MONIEN  | Current Voltage Monitor2 Monitoring Enable | Current Voltage Monitor2よりシャント電圧とバス電圧データの読み出しを行う自動I2CアクセスのEnable設定を行います。このビットが"1"の時にCurrent Voltage Monitor Monitoring Triggerを受信すると、Current Voltage Monitor2へシャント電圧、バス電圧データを読み出すためのI2Cアクセスを行います。ATCVM2I2CERR割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 0: Current Voltage Monitor2 Monitoring Disable 1: Current Voltage Monitor2 Monitoring Enable | R/W |
+|    0 | SYSMON_BHM_CVM1MONIEN  | Current Voltage Monitor1 Monitoring Enable | Current Voltage Monitor1よりシャント電圧とバス電圧データの読み出しを行う自動I2CアクセスのEnable設定を行います。このビットが"1"の時にCurrent Voltage Monitor Monitoring Triggerを受信すると、Current Voltage Monitor1へシャント電圧、バス電圧データを読み出すためのI2Cアクセスを行います。ATCVM1I2CERR割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 0: Current Voltage Monitor1 Monitoring Disable 1: Current Voltage Monitor1 Monitoring Enable | R/W |
+
+測定結果の読み出しを行う対象のデバイスレジスタを、以下に示します。
+
+#+CAPTION: Current Voltage Monitorの測定結果読み出し対象レジスタ
+|  ADR | Register Name           |
+|------+-------------------------|
+| 0x01 | Channel-1 Shunt Voltage |
+| 0x02 | Channel-1 Bus Voltage   |
+| 0x03 | Channel-2 Shunt Voltage |
+| 0x04 | Channel-2 Bus Voltage   |
+| 0x05 | Channel-3 Shunt Voltage |
+| 0x06 | Channel-3 Bus Voltage   |
+
+#+CAPTION: Temperature Sensorの測定結果読み出し対象レジスタ
+|  ADR | Register Name           |
+|------+-------------------------|
+| 0x00 | Temperature register    |
+
+*** Board Health Interrupt Status Register (Offset: 0x2010)
+Board Health Interrupt Status Registerは、System Monitor(Board Health Monitor機能)の割り込みステータスレジスタです。
+それぞれのビットは"1"をセットすると、割り込みをクリアする事ができます。
+
+#+CAPTION: Board Health Interrupt Status Register ビットフィールド
+|   bit | Symbol                   | Field                                          | Description                                                                                                                                                                                                                                                                                                                                                                    | R/W  |
+|-------+--------------------------+------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------|
+| 31:19 | -                        | Reserved                                       | Reserved                                                                                                                                                                                                                                                                                                                                                                       | -    |
+|    18 | SYSMON_BHM_TEMPALERT     | Temperature Sensor Alert Detect                | Temperature SensorよりAlertを受信したことを示すビットです。いずれかのTemperature SensorのALERT信号がアサートした時、本ビットが"1"にセットされます。測定結果の読み出しを行う自動I2Cアクセス、または、ソフトウェア指示によるI2Cアクセスにより、対象となるTemperature SensorのTemperature Register(address: 0x0)を読み出すことで、Temperature SensorのALERT信号がネゲートします。 | R/WC |
+|    17 | SYSMON_BHM_CVMWARN       | Current Voltage Monitor Warning Alert Detect   | Current Voltage MonitorよりWarning Alertを受信したことを示すビットです。いずれかのCurrent Voltage MonitorのWarning信号がアサートした時、本ビットが"1"にセットされます。ソフトウェア指示によるI2Cアクセスにより、対象となるCurrent Voltage MonitorのMask/Enable Register(address: 0x0F)を読み出すことで、Current Voltage MonitorのWarning信号がネゲートします。                 | R/WC |
+|    16 | SYSMON_BHM_CVMCRIT       | Current Voltage Monitor Critical Alert Detect  | Current Voltage MonitorよりCritical Alertを受信したことを示すビットです。いずれかのCurrent Voltage MonitorのCritical信号がアサートした時、本ビットが"1"にセットされます。ソフトウェア指示によるI2Cアクセスにより、対象となるCurrent Voltage MonitorのMask/Enable Register(address: 0x0F)を読み出すことで、Current Voltage MonitorのCritical信号がネゲートします。              | R/WC |
+| 15:14 | -                        | Reserved                                       | Reserved                                                                                                                                                                                                                                                                                                                                                                       | -    |
+|    13 | SYSMON_BHM_SWI2CERR      | Software I2C Access Error                      | ソフトウェア指示によるI2Cアクセス中にErrorが発生したことを示すビットです。NAK受信によるI2CアクセスのエラーがBoard Health I2C Retry Count Setting Registerに設定されているアクセス回数連続で発生した場合に本ビットが"1"にセットされます。                                                                                                                                       | R/WC |
+|    12 | SYSMON_BHM_ATTEMP3I2CERR | Temperature Sensor3 Auto I2C Access Error      | Temperature Sensor3への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中にErrorが発生したことを示すビットです。NAK受信によるI2CアクセスのエラーがBoard Health I2C Retry Count Setting Registerに設定されているアクセス回数連続で発生した場合に本ビットが"1"にセットされます。                                                                              | R/WC |
+|    11 | SYSMON_BHM_ATTEMP2I2CERR | Temperature Sensor2 Auto I2C Access Error      | Temperature Sensor2への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中にErrorが発生したことを示すビットです。NAK受信によるI2CアクセスのエラーがBoard Health I2C Retry Count Setting Registerに設定されているアクセス回数連続で発生した場合に本ビットが"1"にセットされます。                                                                              | R/WC |
+|    10 | SYSMON_BHM_ATTEMP1I2CERR | Temperature Sensor1 Auto I2C Access Error      | Temperature Sensor1への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中にErrorが発生したことを示すビットです。NAK受信によるI2CアクセスのエラーがBoard Health I2C Retry Count Setting Registerに設定されているアクセス回数連続で発生した場合に本ビットが"1"にセットされます。                                                                              | R/WC |
+|     9 | SYSMON_BHM_ATCVM2I2CERR  | Current Voltage Monitor2 Auto I2C Access Error | Current Voltage Monitor2への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中にErrorが発生したことを示すビットです。NAK受信によるI2CアクセスのエラーがBoard Health I2C Retry Count Setting Registerに設定されているアクセス回数連続で発生した場合に本ビットが"1"にセットされます。                                                                         | R/WC |
+|     8 | SYSMON_BHM_ATCVM1I2CERR  | Current Voltage Monitor1 Auto I2C Access Error | Current Voltage Monitor1への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中にErrorが発生したことを示すビットです。NAK受信によるI2CアクセスのエラーがBoard Health I2C Retry Count Setting Registerに設定されているアクセス回数連続で発生した場合に本ビットが"1"にセットされます。                                                                         | R/WC |
+|   7:2 | -                        | Reserved                                       | Reserved                                                                                                                                                                                                                                                                                                                                                                       | -    |
+|     1 | SYSMON_BHM_SWACCEND      | Software Access End                            | ソフトウェア指示によるI2Cアクセスが終了した事を示すビットです。対象デバイスのレジスタへのデータの書き込みまたは読み出しまでのI2C通信が終了した時、本ビットが"1”にセットされます。                                                                                                                                                                                             | R/WC |
+|     0 | SYSMON_BHM_INITACCEND    | Initialization Access End                      | 初期設定の書き込みを行う自動I2Cアクセスが終了した事を示すビットです。Board Health Initialization Access Control RegisterのInitialization Requestのセット時にInitialization Enableとなっていた全てのデバイスの初期設定が終了した時、本ビットが"1”にセットされます。                                                                                                            | R/WC |
+
+*** Board Health Interrupt Enable Register (Offset: 0x2014)
+Board Health Interrupt Enable Registerは、System Monitor(Board Health Monitor機能)の割り込みイベントを割り込み信号に通知する設定を行うためのレジスタです。
+
+Interrupt Enable Registerのビットが "1"にセットした時、その割り込み要因に対応する Interrupt Status Registerのビットが "1"にセットされた時、レベル割り込みが出力します。
+
+#+CAPTION: Board Health Interrupt Enable Register ビットフィールド
+|   bit | Symbol                      | Field                                                 | Description                                                                                  | R/W |
+|-------+-----------------------------+-------------------------------------------------------+----------------------------------------------------------------------------------------------+-----|
+| 31:19 | -                           | Reserved                                              | Reserved                                                                                     | -   |
+|    18 | SYSMON_BHM_TEMPALERTENB     | Temperature Sensor Alert Detect Enable                | SYSMON_BHM_TEMPALERTイベントが発生した時に割り込み信号を発生させるかどうかを設定します。     | R/W |
+|    17 | SYSMON_BHM_CVMWARNENB       | Current Voltage Monitor Warning Alert Detect Enable   | SYSMON_BHM_CVMWARNイベントが発生した時に割り込み信号を発生させるかどうかを設定します。       | R/W |
+|    16 | SYSMON_BHM_CVMCRITENB       | Current Voltage Monitor Critical Alert Detect Enable  | SYSMON_BHM_CVMCRITイベントが発生した時に割り込み信号を発生させるかどうかを設定します。       | R/W |
+| 15:14 | -                           | Reserved                                              | Reserved                                                                                     | -   |
+|    13 | SYSMON_BHM_SWI2CERRENB      | Software I2C Access Error Enable                      | SYSMON_BHM_SWI2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。      | R/W |
+|    12 | SYSMON_BHM_ATTEMP3I2CERRENB | Temperature Sensor3 Auto I2C Access Error Enable      | SYSMON_BHM_ATTEMP3I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。 | R/W |
+|    11 | SYSMON_BHM_ATTEMP2I2CERRENB | Temperature Sensor2 Auto I2C Access Error Enable      | SYSMON_BHM_ATTEMP2I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。 | R/W |
+|    10 | SYSMON_BHM_ATTEMP1I2CERRENB | Temperature Sensor1 Auto I2C Access Error Enable      | SYSMON_BHM_ATTEMP1I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。 | R/W |
+|     9 | SYSMON_BHM_ATCVM2I2CERRENB  | Current Voltage Monitor2 Auto I2C Access Error Enable | SYSMON_BHM_ATCVM2I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。  | R/W |
+|     8 | SYSMON_BHM_ATCVM1I2CERRENB  | Current Voltage Monitor1 Auto I2C Access Error Enable | SYSMON_BHM_ATCVM1I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。  | R/W |
+|   7:2 | -                           | Reserved                                              | Reserved                                                                                     | -   |
+|     1 | SYSMON_BHM_SWACCENDENB      | Software Access End Enable                            | SYSMON_BHM_SWACCENDイベントが発生した時に割り込み信号を発生させるかどうかを設定します。      | R/W |
+|     0 | SYSMON_BHM_INITACCENDENB    | Initialization Access End Enable                      | SYSMON_BHM_INITACCENDイベントが発生した時に割り込み信号を発生させるかどうかを設定します。    | R/W |
+
+*** Board Health VDD_1V0 Shunt Voltage Monitor Register (Offset 0x2020)
+Board Health VDD_1V0 Shunt Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor1 Channel-1(VDD_1V0) Shunt Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_1V0 Shunt Voltage Monitor Register ビットフィールド
+|   bit | Symbol                  | Field                             | Description                                                                                                                     | R/W |
+|-------+-------------------------+-----------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_1V0SNTV_NUPD | VDD_1V0 Shunt Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                       | Reserved                          | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_1V0SNTV      | VDD_1V0 Shunt Voltage             | デバイスレジスタから自動で読み出したVDD_1V0シャント電圧の測定データを表示します。                                               | RO  |
+
+*** Board Health VDD_1V0 Bus Voltage Monitor Register (Offset 0x2024)
+Board Health VDD_1V0 Bus Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor1 Channel-1(VDD_1V0) Bus Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_1V0 bus Voltage Monitor Register ビットフィールド
+|   bit | Symbol                  | Field                           | Description                                                                                                                     | R/W |
+|-------+-------------------------+---------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_1V0BUSV_NUPD | VDD_1V0 Bus Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                       | Reserved                        | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_1V0BUSV      | VDD_1V0 Bus Voltage             | デバイスレジスタから自動で読み出したVDD_1V0バス電圧の測定データを表示します。                                                   | RO  |
+
+*** Board Health VDD_1V8 Shunt Voltage Monitor Register (Offset 0x2028)
+Board Health VDD_1V8 Shunt Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor1 Channel-2(VDD_1V8) Shunt Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_1V8 Shunt Voltage Monitor Register ビットフィールド
+|   bit | Symbol                  | Field                             | Description                                                                                                                     | R/W |
+|-------+-------------------------+-----------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_1V8SNTV_NUPD | VDD_1V8 Shunt Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                       | Reserved                          | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_1V8SNTV      | VDD_1V8 Shunt Voltage             | デバイスレジスタから自動で読み出したVDD_1V8シャント電圧の測定データを表示します。                                               | RO  |
+
+*** Board Health VDD_1V8 Bus Voltage Monitor Register (Offset 0x202C)
+Board Health VDD_1V8 Bus Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor1 Channel-2(VDD_1V8) Bus Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_1V8 bus Voltage Monitor Register ビットフィールド
+|   bit | Symbol                  | Field                           | Description                                                                                                                     | R/W |
+|-------+-------------------------+---------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_1V8BUSV_NUPD | VDD_1V8 Bus Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                       | Reserved                        | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_1V8BUSV      | VDD_1V8 Bus Voltage             | デバイスレジスタから自動で読み出したVDD_1V8バス電圧の測定データを表示します。                                                   | RO  |
+
+*** Board Health VDD_3V3 Shunt Voltage Monitor Register (Offset 0x2030)
+Board Health VDD_3V3 Shunt Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor1 Channel-3(VDD_3V3) Shunt Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3 Shunt Voltage Monitor Register ビットフィールド
+|   bit | Symbol                  | Field                             | Description                                                                                                                     | R/W |
+|-------+-------------------------+-----------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3SNTV_NUPD | VDD_3V3 Shunt Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                       | Reserved                          | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3SNTV      | VDD_3V3 Shunt Voltage             | デバイスレジスタから自動で読み出したVDD_3V3シャント電圧の測定データを表示します。                                               | RO  |
+
+*** Board Health VDD_3V3 Bus Voltage Monitor Register (Offset 0x2034)
+Board Health VDD_3V3 Bus Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor1 Channel-3(VDD_3V3) Bus Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3 bus Voltage Monitor Register ビットフィールド
+|   bit | Symbol                  | Field                           | Description                                                                                                                     | R/W |
+|-------+-------------------------+---------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3BUSV_NUPD | VDD_3V3 Bus Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                       | Reserved                        | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3BUSV      | VDD_3V3 Bus Voltage             | デバイスレジスタから自動で読み出したVDD_3V3バス電圧の測定データを表示します。                                                   | RO  |
+
+*** Board Health VDD_3V3_SYS_A Shunt Voltage Monitor Register (Offset 0x2038)
+Board Health VDD_3V3_SYS_A Shunt Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor2 Channel-1(VDD_3V3_SYS_A) Shunt Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3_SYS_A Shunt Voltage Monitor Register ビットフィールド
+|   bit | Symbol                      | Field                                   | Description                                                                                                                     | R/W |
+|-------+-----------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3SYSASNTV_NUPD | VDD_3V3_SYS_A Shunt Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                           | Reserved                                | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3SYSASNTV      | VDD_3V3_SYS_A Shunt Voltage             | デバイスレジスタから自動で読み出したVDD_3V3_SYS_Aシャント電圧の測定データを表示します。                                         | RO  |
+
+*** Board Health VDD_3V3_SYS_A Bus Voltage Monitor Register (Offset 0x203C)
+Board Health VDD_3V3_SYS_A Bus Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor2 Channel-1(VDD_3V3_SYS_A) Bus Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3_SYS_A bus Voltage Monitor Register ビットフィールド
+|   bit | Symbol                      | Field                                 | Description                                                                                                                     | R/W |
+|-------+-----------------------------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3SYSABUSV_NUPD | VDD_3V3_SYS_A Bus Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                           | Reserved                              | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3SYSABUSV      | VDD_3V3_SYS_A Bus Voltage             | デバイスレジスタから自動で読み出したVDD_3V3_SYS_Aバス電圧の測定データを表示します。                                             | RO  |
+
+*** Board Health VDD_3V3_SYS_B Shunt Voltage Monitor Register (Offset 0x2040)
+Board Health VDD_3V3_SYS_B Shunt Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor2 Channel-2(VDD_3V3_SYS_B) Shunt Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3_SYS_B Shunt Voltage Monitor Register ビットフィールド
+|   bit | Symbol                      | Field                                   | Description                                                                                                                     | R/W |
+|-------+-----------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3SYSBSNTV_NUPD | VDD_3V3_SYS_B Shunt Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                           | Reserved                                | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3SYSBSNTV      | VDD_3V3_SYS_B Shunt Voltage             | デバイスレジスタから自動で読み出したVDD_3V3_SYS_Bシャント電圧の測定データを表示します。                                         | RO  |
+
+*** Board Health VDD_3V3_SYS_B Bus Voltage Monitor Register (Offset 0x2044)
+Board Health VDD_3V3_SYS_B Bus Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor2 Channel-2(VDD_3V3_SYS_B) Bus Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3_SYS_B bus Voltage Monitor Register ビットフィールド
+|   bit | Symbol                      | Field                                 | Description                                                                                                                     | R/W |
+|-------+-----------------------------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3SYSBBUSV_NUPD | VDD_3V3_SYS_B Bus Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                           | Reserved                              | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3SYSBBUSV      | VDD_3V3_SYS_B Bus Voltage             | デバイスレジスタから自動で読み出したVDD_3V3_SYS_Bバス電圧の測定データを表示します。                                             | RO  |
+
+*** Board Health VDD_3V3_IO Shunt Voltage Monitor Register (Offset 0x2048)
+Board Health VDD_3V3_IO Shunt Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor2 Channel-3(VDD_3V3_IO) Shunt Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3_IO Shunt Voltage Monitor Register ビットフィールド
+|   bit | Symbol                    | Field                                | Description                                                                                                                     | R/W |
+|-------+---------------------------+--------------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3IOSNTV_NUPD | VDD_3V3_IO Shunt Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                         | Reserved                             | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3IOSNTV      | VDD_3V3_IO Shunt Voltage             | デバイスレジスタから自動で読み出したVDD_3V3_IOシャント電圧の測定データを表示します。                                            | RO  |
+
+*** Board Health VDD_3V3_IO Bus Voltage Monitor Register (Offset 0x204C)
+Board Health VDD_3V3_IO Bus Voltage Monitor Registerは、OBC ModuleのCurrent Voltage Monitor2 Channel-3(VDD_3V3_IO) Bus Voltage測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health VDD_3V3_IO bus Voltage Monitor Register ビットフィールド
+|   bit | Symbol                    | Field                              | Description                                                                                                                     | R/W |
+|-------+---------------------------+------------------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_3V3IOBUSV_NUPD | VDD_3V3_IO Bus Voltage Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                         | Reserved                           | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_3V3IOBUSV      | VDD_3V3_IO Bus Voltage             | デバイスレジスタから自動で読み出したVDD_3V3_IOバス電圧の測定データを表示します。                                                | RO  |
+
+*** Board Health Temperature1 Monitor Register (Offset 0x2050)
+Board Health Temperature1 Monitor Registerは、OBC ModuleのTemperature Sensor1 Temperature測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health Temperature1 Monitor Register ビットフィールド
+|   bit | Symbol                | Field                    | Description                                                                                                                     | R/W |
+|-------+-----------------------+--------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_TEMP1_NUPD | Temperature1 Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                     | Reserved                 | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_TEMP1      | Temperature1             | デバイスレジスタから自動で読み出したTemperature1の測定データを表示します。                                                      | RO  |
+
+*** Board Health Temperature2 Monitor Register (Offset 0x2054)
+Board Health Temperature2 Monitor Registerは、OBC ModuleのTemperature Sensor2 Temperature測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health Temperature2 Monitor Register ビットフィールド
+|   bit | Symbol                | Field                    | Description                                                                                                                     | R/W |
+|-------+-----------------------+--------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_TEMP2_NUPD | Temperature2 Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                     | Reserved                 | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_TEMP2      | Temperature2             | デバイスレジスタから自動で読み出したTemperature2の測定データを表示します。                                                      | RO  |
+
+*** Board Health Temperature3 Monitor Register (Offset 0x2058)
+Board Health Temperature3 Monitor Registerは、OBC ModuleのTemperature Sensor3 Temperature測定結果の確認を行うためのレジスタです。
+測定結果の読み出しを行う自動I2Cアクセスにより取得したデータが、本レジスタへ格納されます。
+
+#+CAPTION: Board Health Temperature3 Monitor Register ビットフィールド
+|   bit | Symbol                | Field                    | Description                                                                                                                     | R/W |
+|-------+-----------------------+--------------------------+---------------------------------------------------------------------------------------------------------------------------------+-----|
+|    31 | SYSMON_BHM_TEMP3_NUPD | Temperature3 Not Updated | このレジスタを前回読み出した時点から測定データが更新されていなかった場合、または、初期状態の場合、このビットは"1"を表示します。 | RO  |
+| 30:16 | -                     | Reserved                 | Reserved                                                                                                                        | -   |
+|  15:0 | SYSMON_BHM_TEMP3      | Temperature3             | デバイスレジスタから自動で読み出したTemperature3の測定データを表示します。                                                      | RO  |
+
+*** Board Health Software Access Control Register (Offset 0x2060)
+Board Health Software Access Control Registerは、ソフトウェア指示によるデバイスレジスタへのI2Cアクセスの制御を行うためのレジスタです。
+
+Software I2C Access Requestビットを"1"にセットした時に、設定されたデバイス、アドレスへI2Cアクセスを行います。
+Software I2C Access Requestビットとこの他の設定フィールドは、同時にセットすることができます。
+I2Cライトアクセスを行う場合は、I2Cアクセスを開始する前にBoard Health Software Access Write Data Registerの設定が必要となります。
+
+#+CAPTION: Board Health Software Access Control Register ビットフィールド
+|   bit | Symbol              | Field                                 | Description                                                                                                                                                                                             | R/W |
+|-------+---------------------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
+| 31:25 | -                   | Reserved                              | Reserved                                                                                                                                                                                                | -   |
+|    24 | SYSMON_BHM_SWACCREQ | Software I2C Access Request           | このビットに"1"をセットすることで、ソフトウェア指示によるI2Cアクセスを開始します。 対象デバイスのレジスタへのデータの書き込みまたは読み出しまでのI2C通信が終了すると、このビットは自動で"0"に戻ります。 | R/W |
+| 23:19 | -                   | Reserved                              | Reserved                                                                                                                                                                                                | -   |
+| 18:16 | SYSMON_BHM_SWDEVSEL | Software I2C Access Device Select     | デバイスの選択を行います。 0x0: Current Voltage Monitor1 0x1: Current Voltage Monitor2 0x2: Temperature Sensor1 0x3: Temperature Sensor2 0x4: Temperature Sensor3 0x5-0x7: 設定禁止                     | R/W |
+|  15:8 | SYSMON_BHM_SWREGADR | Software I2C Access Register Address  | デバイスレジスタのアドレスを設定します。                                                                                                                                                                | R/W |
+|   7:1 | -                   | Reserved                              | Reserved                                                                                                                                                                                                | -   |
+|     0 | SYSMON_BHM_SWRWSEL  | Software I2C Access Read/Write Select | デバイスレジスタへのRead/Write選択を行います。 0: Write 1: Read                                                                                                                                         | R/W |
+
+*** Board Health Software Access Write Data Register (Offset 0x2064)
+Board Health Software Access Write Data Registerは、ソフトウェア指示によるI2Cアクセスで、デバイスレジスタへ書き込むデータの設定を行うためのレジスタです。
+
+#+CAPTION: Board Health Software Access Write Data Register ビットフィールド
+|   bit | Symbol              | Field                          | Description                                    | R/W |
+|-------+---------------------+--------------------------------+------------------------------------------------+-----|
+| 31:16 | -                   | Reserved                       | Reserved                                       | -   |
+|  15:0 | SYSMON_BHM_SWWRDATA | Software I2C Access Write Data | デバイスレジスタへ書き込むデータを設定します。 | R/W |
+
+*** Board Health Software Access Read Data Register (Offset 0x2068)
+Board Health Software Access Read Data Registerは、ソフトウェア指示によるI2Cアクセスで、デバイスレジスタから読み出すデータの格納を行うためのレジスタです。
+
+#+CAPTION: Board Health Software Access Write Data Register ビットフィールド
+|   bit | Symbol              | Field                         | Description                                        | R/W |
+|-------+---------------------+-------------------------------+----------------------------------------------------+-----|
+| 31:16 | -                   | Reserved                      | Reserved                                           | -   |
+|  15:0 | SYSMON_BHM_SWRDDATA | Software I2C Access Read Data | デバイスレジスタから読み出したデータを表示します。 | RO  |
+
+*** Board Health I2C Prescale Setting Register (Offset 0x2080)
+Board Health I2C Prescale Setting Registerは、I2C通信におけるタイミングパラメータの設定を行うためのレジスタです。
+このレジスタによるシステムクロック周波数のプリスケール設定が、I2C通信に使用されるタイミングパラメータへ反映されます。
+初期設定値は、システムクロックが48MHzの場合のFast-mode(400Kb/s)でのI2C通信をターゲットとして設定されています。
+
+#+CAPTION: Board Health I2C Prescale Setting Register ビットフィールド
+|   bit | Symbol            | Field                          | Description                                                                            | R/W |
+|-------+-------------------+--------------------------------+----------------------------------------------------------------------------------------+-----|
+| 31:16 | -                 | Reserved                       | Reserved                                                                               | -   |
+|  15:0 | SYSMON_BHM_CLKPSC | I2C Prescale From System Clock | System Monitorに供給されているシステムクロック周波数からのプリスケール値を設定します。 | R/W |
+
+レジスタ設定によるI2C通信の各タイミング設定は、それぞれ以下の式で計算できます。
+I2C通信の1ビットは、I2CクロックのHigh期間(tHIGH)とLow期間(tLOW)のTotal時間となります。
+
+#+BEGIN_QUOTE
+$START\ Hold\ Time(tHDSTA)[s] = System\ Clock\ period[s] \times \frac{SYSMON\_BHM\_CLKPSC+1}{2}$
+#+END_QUOTE
+#+BEGIN_QUOTE
+$STOP\ Setup\ Time(tSUSTO)[s] = System\ Clock\ period[s] \times \frac{SYSMON\_BHM\_CLKPSC+1}{2}$
+#+END_QUOTE
+#+BEGIN_QUOTE
+$Repeated\ START\ Setup\ Time(tSUSTA)[s] = System\ Clock\ period[s] \times \frac{SYSMON\_BHM\_CLKPSC+1}{2}$
+#+END_QUOTE
+#+BEGIN_QUOTE
+$SCL\ High\ Time(tHIGH)[s] = System\ Clock\ period[s] \times \frac{SYSMON\_BHM\_CLKPSC+1}{2}-5$
+#+END_QUOTE
+#+BEGIN_QUOTE
+$Data\ Hold\ Time(tHDDAT)[s] = System\ Clock\ period[s] \times 5$
+#+END_QUOTE
+#+BEGIN_QUOTE
+$Data\ Setup\ Time(tSUDAT)[s] = System\ Clock\ period[s] \times \frac{SYSMON\_BHM\_CLKPSC+1}{2}$
+#+END_QUOTE
+#+BEGIN_QUOTE
+$SCL\ Low\ Time(tLOW)[s] = tHDDAT[s] + tSUDAT[s]$
+#+END_QUOTE
+#+BEGIN_QUOTE
+$Bus\ Free\ Time(tBUF)[s] = System\ Clock\ period[s] \times \frac{SYSMON\_BHM\_CLKPSC+1}{2}+5$
+#+END_QUOTE
+
+システムクロックが96MHz, 48MHz, 24MHzにおいて、Fast-mode(400Kb/s)で通信する場合の、本レジスタの設定値とI2C通信の各タイミング値の例を以下に示します。
+
+#+CAPTION: Fast-mode(400Kb/s)通信時のBoard Health I2C Prescale Setting Registerの設定例とI2Cタイミング (システムクロックのサイクル数)
+| Parameter                           | System Clock=96MHz     | System Clock=48MHz[default] | System Clock=24MHz    |
+|-------------------------------------+------------------------+-----------------------------+-----------------------|
+| SYSMON_BHM_CLKPSC[15:0] 設定値      | 0x00EF [Divide by 240] | 0x0077 [Divide by 120]      | 0x003B [Divide by 60] |
+| START Hold Timing(tHDSTA)           | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
+| STOP Setup Timing(tSUSTO)           | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
+| Repeated START Setup Timing(tSUSTA) | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
+| Clock High Timing(tHIGH)            | 115 Cycle [1.20us]     | 55 Cycle [1.15us]           | 25 Cycle [1.04us]     |
+| Data Hold Timing(tHDDAT)            | 5 Cycle [0.05us]       | 5 Cycle [0.10us]            | 5 Cycle [0.21us]      |
+| Data Setup Timing(tSUDAT)           | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
+| Clock Low Timing(tLOW)              | 125 Cycle [1.30us]     | 65 Cycle [1.35us]           | 35 Cycle [1.46us]     |
+| Bus Free Timing(tBUF)               | 125 Cycle [1.30us]     | 65 Cycle [1.35us]           | 35 Cycle [1.46us]     |
+
+*** Board Health I2C Access Count Setting Register (Offset 0x2084)
+Board Health I2C Access Count Setting Registerは、I2C通信エラー発生による再実行アクセスを含めたI2Cアクセス実行回数の設定を行うためのレジスタです。
+I2Cアクセスエラー発生時にI2Cアクセスを再実行し、このレジスタに設定された回数のI2Cアクセスエラーが連続で発生した場合に、I2Cアクセスを停止し、Board Health Interrupt Status Registerの対象となるビットのI2C Access Error割り込みがセットされます。
+このレジスタに書き込む値は、「実際のI2Cアクセス回数 - 1」を設定します。
+
+#+CAPTION: Board Health I2C Access Count Setting Register ビットフィールド
+|  bit | Symbol               | Field            | Description                   | R/W |
+|------+----------------------+------------------+-------------------------------+-----|
+| 31:8 | -                    | Reserved         | Reserved                      | -   |
+|  7:0 | SYSMON_BHM_I2CACCCNT | I2C Access Count | I2Cアクセス回数を設定します。 | R/W |
+
+*** Board Health Access Status Register (Offset 0x20C0)
+Board Health Access Status Registerは、実行中のI2Cアクセスのステータスを確認するためのレジスタです。
+このレジスタの全てのビットが"0"を示す時、I2C BusがIdle状態であることを示します。
+
+#+CAPTION: Board Health Access Status Register ビットフィールド
+|  bit | Symbol                 | Field                                     | Description                                                                                                                          | R/W |
+|------+------------------------+-------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------+-----|
+| 31:6 | -                      | Reserved                                  | Reserved                                                                                                                             | -   |
+|    5 | SYSMON_BHM_SWBUSY      | Software Access Busy                      | ソフトウェア指示によるI2Cアクセス中の時に、このビットに"1"を示します。                                                               | RO  |
+|    4 | SYSMON_BHM_ATTEMP3BUSY | Temperature Sensor3 Auto Access Busy      | Temperature Sensor3への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中の時に、このビットに"1"を示します。      | RO  |
+|    3 | SYSMON_BHM_ATTEMP2BUSY | Temperature Sensor2 Auto Access Busy      | Temperature Sensor2への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中の時に、このビットに"1"を示します。      | RO  |
+|    2 | SYSMON_BHM_ATTEMP1BUSY | Temperature Sensor1 Auto Access Busy      | Temperature Sensor1への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中の時に、このビットに"1"を示します。      | RO  |
+|    1 | SYSMON_BHM_ATCVM2BUSY  | Current Voltage Monitor2 Auto Access Busy | Current Voltage Monitor2への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中の時に、このビットに"1"を示します。 | RO  |
+|    0 | SYSMON_BHM_ATCVM1BUSY  | Current Voltage Monitor1 Auto Access Busy | Current Voltage Monitor1への初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中の時に、このビットに"1"を示します。 | RO  |
+
+** Board Health Monitor機能の詳細
+*** レジスタアクセス操作手順
+この章では、Board Health Monitor機能を使用するための、System Monitorレジスタの制御手順を説明します。
+
+**** デバイスの測定データの取得までの操作手順例
+ここでは、SC OBC FPGAを起動してから、電源電圧、温度の測定データの取得を行うまでのレジスタ操作手順を以下に示します。
+デバイスの初期設定に関する詳細は「初期設定の書き込みを行う自動I2Cアクセス」の章、デバイスの測定データの取得に関する詳細は「測定結果の読み出しを行う自動I2Cアクセス」の章を参照してください。
+
+#+CAPTION: 測定データの取得までのレジスタ操作手順
+[[file:./images/ohltm_after_start_seq.png]]
+
+I2C通信のビットレートを決めるタイミングパラメータの初期設定は、システムクロックが48MHzの場合のFast-mode(400Kb/s)をターゲットに設定されています。
+システムクロックの動作周波数が48MHz、かつ、I2C通信のビットレートがFast-mode(400Kb/s)から変更が無い場合は、以下の手順[1]を省略することができます。
+
+また、I2C通信エラー発生による再実行アクセスを含めたI2Cアクセス実行回数の初期設定は3回に設定されています。
+I2Cアクセス実行回数が3回から変更が無い場合は、以下の手順[2]を省略することができます。
+
+1: Board Health I2C Prescale Setting Registerへ、I2C通信速度の設定(システムクロックのプリスケール設定)を行います。
+
+2: Board Health I2C Access Count Setting Registerへ、I2Cアクセス実行回数の設定を行います。
+
+3: Board Health Interrupt Enable Registerの全ての割り込み要因ビットを"1"に設定します。
+
+4: Board Health Initialization Access Control Registerの全てのxxxxINITENビットとINITREQビットを"1"に設定し、デバイスの初期設定を開始します。
+
+5: SYSMON_BHM_INT信号のアサートを検出したときに、Board Health Interrupt Status RegisterのINITACCENDビットが"1"にセットされていることで、デバイスの初期設定が完了したことを知ることができます。
+
+6: Board Health Interrupt Status RegisterのINITACCENDビットに"1"を書き込み、INITACCENDビットをクリアします。
+
+7: Board Health Monitoring Access Control Registerの全てのxxxxMONIENビットを"1"に設定し、デバイスの測定データの取得を開始します。
+
+Monitoring Enableのセット後は、定期的に測定データがデバイスから読み出され各Monitor Registerへ格納されます。
+Monitor Registerの更新周期は、各デバイスのデータ測定の待機時間に合わせて設定される、General Purpose Timerからのイベントトリガの発行周期に同期します。
+
+8: Current Voltage Monitorの測定データの更新周期に合わせて、各デバイスおよび各Channelのシャント電圧、バス電圧の測定データを読み出します。
+
+9: Temperature Sensorの測定データの更新周期に合わせて、各デバイスの温度の測定データを読み出します。
+
+初期設定以外でのデバイスの設定変更を行う場合や、デバイスの割り込み機能により異常を検出したことなどからデバイスレジスタの操作を行いたい場合は、ソフトウェア指示により任意のデバイスレジスタへ直接I2Cアクセスを行う必要があります。
+
+**** ソフトウェア指示によるI2Cアクセスの操作手順例
+ソフトウェア指示により、任意のデバイスレジスタへI2C書き込み/読み出しアクセスを行う場合のレジスタ操作手順を説明します。
+
+各デバイスのレジスタの詳細は、Texas Instruments社のデータシート(Current Voltage Monitor: INA3221-Q1、Temperature Sensor: TMP175-Q1)を参照してください。
+
+初期設定の書き込み、または、測定結果の読み出しによる自動I2Cアクセス中に、ソフトウェア指示によるI2Cアクセス要求を行った場合は、その時点で実行されているI2Cアクセスの終了後に、次に予定されていたI2Cアクセスを実行せずにソフトウェア指示によるI2Cアクセスを優先して実行します。
+ソフトウェア指示によるI2Cアクセスの終了後に、中断していたI2Cアクセスから動作を再開します。
+
+ソフトウェア指示によるI2Cアクセス中にI2Cエラーが発生した場合は、Board Health Interrupt Status RegisterのSWACCERRのビットが"1"にセットされ、ソフトウェア指示によるI2Cアクセスは即時停止します。
+
+***** I2C書き込みアクセスの操作手順
+ソフトウェア指示によるデバイスレジスタへのI2C書き込みアクセスのレジスタ操作手順を以下に示します。
+
+#+CAPTION: ソフトウェア指示によるI2C書き込みアクセス操作手順
+#+ATTR_HTML: :width 350
+[[file:./images/ohltm_sw_write_seq.png]]
+
+1: デバイスレジスタへの2Byteの書き込みデータをBoard Health Software Access Write Data Registerへ書き込みます。このレジスタに書き込まれたデータが、そのままデバイスのレジスタに書き込まれます。
+
+2: Board Health Software Access Control RegisterのSWRWSELビットに"0"、SWDEVSELフィールドにアクセスするデバイス、SWREGADRフィールドにデバイスのレジスタアドレスを設定すると同時に、SWACCREQビットに"1"を設定することで、I2C書き込みアクセスを開始します。
+
+3: SYSMON_BHM_INT信号のアサートを検出したときに、Board Health Interrupt Status RegisterのSWACCENDビットが"1"にセットされていることで、ソフトウェア指示によるI2C書き込みアクセスが完了したことを知ることができます。
+
+4: Board Health Interrupt Status RegisterのSWACCENDビットに"1"を書き込み、SWACCENDビットをクリアします。
+
+***** I2C読み出しアクセスの操作手順
+ソフトウェア指示によるデバイスレジスタへのI2C読み出しアクセスのレジスタ操作手順を以下に示します。
+
+#+CAPTION: ソフトウェア指示によるI2C読み出しアクセス操作手順
+#+ATTR_HTML: :width 350
+[[file:./images/ohltm_sw_read_seq.png]]
+
+1: Board Health Software Access Control RegisterのSWRWSELビットに"1"、SWDEVSELフィールドにアクセスするデバイス、SWREGADRフィールドにデバイスのレジスタアドレスを設定すると同時に、SWACCREQビットに"1"を設定することで、I2C読み出しアクセスを開始します。
+
+2: SYSMON_BHM_INT信号のアサートを検出したときに、Board Health Interrupt Status RegisterのSWACCENDビットが"1"にセットされていることで、ソフトウェア指示によるI2C読み出しアクセスが完了したことを知ることができます。
+
+3: Board Health Interrupt Status RegisterのSWACCENDビットに"1"を書き込み、SWACCENDビットをクリアします。
+
+4: Board Health Software Access Read Data Registerを読み出し、デバイスレジスタからのリードデータを確認します。このレジスタには、読み出したデバイスのレジスタのデータがそのまま格納されます。
+
+*** I2Cアクセスのリトライ機能
+Board Health Monitor機能には、I2C通信を正常に完了するまで、同一のI2Cアクセスを自動で再実行する機能が備わっています。
+この章では、ソフトウェア指示によるI2Cアクセスを例として、I2Cアクセスのリトライ機能の動作について説明します。
+
+#+CAPTION: ソフトウェア指示によるI2Cアクセス時の再実行動作
+#+ATTR_HTML: :width 500
+[[file:./images/ohltm_sw_retry_flow.png]]
+
+I2Cアクセスの最大実行回数は、Board Health I2C Access Count Setting Registerにより設定することができます。
+初期設定では、3回(リトライアクセスの実行回数が最大2回)に設定されています。
+
+A: ソフトウェア指示によるI2CアクセスによりAccess-Aが開始され、1回目のI2Cアクセスで正常にアクセスが行われ、I2Cアクセスが終了します。この時、Board Health Interrupt Status RegisterのSWACCENDビットが"1"にセットされます。
+
+B: ソフトウェア指示によるI2CアクセスによりAccess-Bが開始されますが、NAK受信の発生により、同じI2Cアクセスが連続で実行されます。この時、1回目と2回目のI2CアクセスでNAK受信を検出しますが、3回目のI2Cアクセスで正常実行(ACK受信)が確認できたため、Access-A時と同様にI2Cアクセスの実行が正常に完了したと判断され、SWACCENDビットのみ"1"にセットされます。
+
+C: ソフトウェア指示によるI2CアクセスによりAccess-Cが開始されますが、NAK受信の発生により、同じI2Cアクセスが連続で実行されます。この時、3回連続でNAK受信を検出したため、I2Cアクセスを停止し、SWI2CERRビットとSWACCENDビットが"1"にセットされます。
+
+D: Board Health I2C Access Count Setting Registerへ書き込みを行い、I2C実行回数を5回に設定します。
+
+E: ソフトウェア指示によるI2CアクセスによりAccess-Dが開始されますが、NAK受信の発生により、同じI2Cアクセスが連続で実行されます。この時、1回目から4回目のI2CアクセスでNAK受信を検出しますが、5回目のI2Cアクセスで正常実行(ACK受信)が確認できたため、I2Cアクセスが正常に実行が完了したと判断され、SWACCENDビットのみ"1"にセットされます。
+
+F: ソフトウェア指示によるI2CアクセスによりAccess-Eが開始されますが、NAK受信の発生により、同じI2Cアクセスが連続で実行されます。この時、5回連続でNAK受信を検出したため、I2Cアクセスを停止し、SWI2CERRビットとSWACCENDビットが"1"にセットされます。
+
+I2Cアクセスのリトライは、初期設定の書き込みを行う自動I2Cアクセス、および、測定結果の読み出しを行う自動I2Cアクセスでも同様に実行されます。
+但し、これらの自動I2Cアクセス実行時に、設定された最大実行回数までI2Cアクセスが正常に実行されなかった場合は、以降に実行が予定されている全てのI2Cアクセスを停止するのではなく、I2Cアクセスが失敗したデバイスと同一のデバイスへアクセスするI2Cアクセスのみをスキップします。
+詳細は、「初期設定の書き込みを行う自動I2Cアクセス」「測定結果の読み出しを行う自動I2Cアクセス」の章を参照してください。
+
+*** 初期設定の書き込みを行う自動I2Cアクセス
+この章では、各デバイスへの初期設定の書き込みが自動で行われるI2Cアクセスの動作について説明します。
+この機能は、ソフトウェアによりSystem Monitorへ初期設定書き込み要求が発行されることで実行が開始されます。
+
+初期設定の書き込みを行う自動I2Cアクセスフローの例について以下に示します。
+
+#+CAPTION: 初期設定の書き込みを行う自動I2Cアクセスフロー
+[[file:./images/ohltm_init_config_flow.png]]
+
+A: ソフトウェアからのレジスタアクセスにより、Board Health Initialization Access Control Registerの初期設定を行うデバイスのxxxxINITENビットとINITREQビットに"1"を書き込みます。
+
+B: Aの実行後、System Monitorは、直ちに初期設定の書き込みを行う自動I2Cアクセスを開始します。
+
+上図では、Current Voltage Monitor1からTemperature Sensor3まで順に初期設定が行われるフローの例となっていますが、アクセスを行う順番に特に制限は無く、
+書き込みを行うI2Cのアクセス数やアクセスの順番、レジスタアドレス、ライトデータは、全てインプリメント時に指定されたパラメータに従い設定されます。
+Board Health Initialization Access Control RegisterのInitialization Enableビットを"0"にすることで、特定のデバイスへの書き込みをスキップすることができます。
+デバイス毎のアクセスの実行有無は、アクセスするデバイスの選択結果より識別されます。
+
+C: Initialization Disable設定されているデバイスへの初期設定を除く、指定されていた全ての初期設定の書き込みが完了すると、System Monitorは、Board Health Interrupt Status RegisterのINITACCENDビットを"1"にセットします。
+
+初期設定の開始前に、Board Health Interrupt Enable RegisterのINITACCENDENBビットを"1"に設定しておくことにより、割り込み通知によりソフトウェアは初期設定の完了を知ることができます。
+
+以下に、初期設定を行うデバイス、デバイスアドレス、設定値の一覧を示します。(T.B.D.)
+
+#+CAPTION: デバイス初期設定一覧
+| Device                   | Address                              | 設定値 | Description                                                                                                        |
+|--------------------------+--------------------------------------+--------+--------------------------------------------------------------------------------------------------------------------|
+| Current Voltage Monitor1 | 0x07: Channel-1 Critical-Alert Limit | 0x2710 | VDD_1V0のCritical-Alertをシャント電圧: 50mV(シャント電流: 5A)に設定                                                |
+| Current Voltage Monitor1 | 0x08: Channel-1 Warning-Alert Limit  | 0x1770 | VDD_1V0のWarning-Alertをシャント電圧: 30mV(シャント電流: 3A)に設定                                                 |
+| Current Voltage Monitor1 | 0x09: Channel-2 Critical-Alert Limit | 0x2710 | VDD_1V8のCritical-Alertをシャント電圧: 50mV(シャント電流: 5A)に設定                                                |
+| Current Voltage Monitor1 | 0x0A: Channel-2 Warning-Alert Limit  | 0x1770 | VDD_1V8のWarning-Alertをシャント電圧: 30mV(シャント電流: 3A)に設定                                                 |
+| Current Voltage Monitor1 | 0x0B: Channel-3 Critical-Alert Limit | 0x2710 | VDD_3V3のCritical-Alertをシャント電圧: 50mV(シャント電流: 5A)に設定                                                |
+| Current Voltage Monitor1 | 0x0C: Channel-3 Warning-Alert Limit  | 0x1770 | VDD_3V3のWarning-Alertをシャント電圧: 30mV(シャント電流: 3A)に設定                                                 |
+| Current Voltage Monitor1 | 0x0F: Mask/Enable                    | 0x0C00 | Current Voltage Monitor1のCritical-Alertピン、Warning-Alertピンのラッチの有効化を設定                              |
+| Current Voltage Monitor2 | 0x07: Channel-1 Critical-Alert Limit | 0x2710 | VDD_3V3_SYS_AのCritical-Alertをシャント電圧: 50mV(シャント電流: 5A)に設定                                          |
+| Current Voltage Monitor2 | 0x08: Channel-1 Warning-Alert Limit  | 0x1770 | VDD_3V3_SYS_AのWarning-Alertをシャント電圧: 30mV(シャント電流: 3A)に設定                                           |
+| Current Voltage Monitor2 | 0x09: Channel-2 Critical-Alert Limit | 0x2710 | VDD_3V3_SYS_BのCritical-Alertをシャント電圧: 50mV(シャント電流: 5A)に設定                                          |
+| Current Voltage Monitor2 | 0x0A: Channel-2 Warning-Alert Limit  | 0x1770 | VDD_3V3_SYS_BのWarning-Alertをシャント電圧: 30mV(シャント電流: 3A)に設定                                           |
+| Current Voltage Monitor2 | 0x0B: Channel-3 Critical-Alert Limit | 0x2710 | VDD_3V3_IOのCritical-Alertをシャント電圧: 50mV(シャント電流: 5A)に設定                                             |
+| Current Voltage Monitor2 | 0x0C: Channel-3 Warning-Alert Limit  | 0x1770 | VDD_3V3_IOのWarning-Alertをシャント電圧: 30mV(シャント電流: 3A)に設定                                              |
+| Current Voltage Monitor2 | 0x0F: Mask/Enable                    | 0x0C00 | Current Voltage Monitor2のCritical-Alertピン、Warning-Alertピンのラッチの有効化を設定                              |
+| Temperature Sensor1      | 0x01: Configuration register         | 0x0200 | Temperature Sensor1のALERTピンの動作をInterrupt Modeに設定 (1Byteのレジスタの為、MSB Byteの書き込み値に設定される) |
+| Temperature Sensor1      | 0x02: TLOW register                  | 0x4B00 | Temperature Sensor1のTLOWを75℃に設定                                                                              |
+| Temperature Sensor1      | 0x03: THIGH register                 | 0x5000 | Temperature Sensor1のTHIGHを80℃に設定                                                                             |
+| Temperature Sensor2      | 0x01: Configuration register         | 0x0200 | Temperature Sensor2のALERTピンの動作をInterrupt Modeに設定 (1Byteのレジスタの為、MSB Byteの書き込み値に設定される) |
+| Temperature Sensor2      | 0x02: TLOW register                  | 0x4B00 | Temperature Sensor2のTLOWを75℃に設定                                                                              |
+| Temperature Sensor2      | 0x03: THIGH register                 | 0x5000 | Temperature Sensor2のTHIGHを80℃に設定                                                                             |
+| Temperature Sensor3      | 0x01: Configuration register         | 0x0200 | Temperature Sensor3のALERTピンの動作をInterrupt Modeに設定 (1Byteのレジスタの為、MSB Byteの書き込み値に設定される) |
+| Temperature Sensor3      | 0x02: TLOW register                  | 0x4B00 | Temperature Sensor3のTLOWを75℃に設定                                                                              |
+| Temperature Sensor3      | 0x03: THIGH register                 | 0x5000 | Temperature Sensor3のTHIGHを80℃に設定                                                                             |
+
+初期設定の書き込みを行う自動I2Cアクセス中に、Board Health I2C Retry Count Setting Registerに設定されているアクセス回数連続でI2Cエラーが発生した場合は、Board Health Interrupt Status Registerの対象となるデバイスのxxxxACCERRのビットが"1"にセットされ、以降のI2Cエラーが発生したデバイスへの初期設定の書き込みによる自動I2Cアクセスはスキップされます。
+
+#+CAPTION: 初期設定の書き込み中の自動I2Cエラー発生時のフロー
+[[file:./images/ohltm_init_err_flow.png]]
+
+初期設定が行われなかったデバイスへ設定を実行したい場合は、全てのデバイスへの初期設定の完了後に、再度初期設定の書き込み要求を実行するか、ソフトウェア指示により直接I2Cアクセスを行う必要があります。
+
+*** 測定結果の読み出しを行う自動I2Cアクセス
+この章では、各デバイスへの測定結果の読み出しが自動で行われるI2Cアクセスの動作について説明します。
+この機能は、General Purpose Timerにより System Monitorへイベントトリガが発行されることで実行が開始されます。
+
+測定結果の読み出しを行う自動I2Cアクセスフローの例について以下に示します。
+
+#+CAPTION: 測定結果の読み出しを行う自動I2Cアクセスフロー
+[[file:./images/ohltm_measure_read_flow.png]]
+
+A: ソフトウェアからのレジスタアクセスにより、Board Health Monitoring Access Control Registerの測定データの取得を行うデバイスのxxxxMONIENビットに"1"を書き込みます。
+
+B: General Purpose Timerから Current Voltage Request Triggerを受信した時、System Monitorは、 Current Voltage Monitorからシャント電圧とバス電圧の読み出しを行う自動I2Cアクセスを開始します。
+
+Current Voltage Monitorからの測定データの読み出しは、以下の順番で行われます。
+
+  VDD_1V0 シャント電圧(CVM1MONIEN=1時) -> VDD_1V0 バス電圧(CVM1MONIEN=1時) ->
+  VDD_1V8 シャント電圧(CVM1MONIEN=1時) -> VDD_1V8 バス電圧(CVM1MONIEN=1時) ->
+  VDD_3V3 シャント電圧(CVM1MONIEN=1時) -> VDD_3V3 バス電圧(CVM1MONIEN=1時) ->
+  VDD_3V3_SYS_A シャント電圧(CVM2MONIEN=1時) -> VDD_3V3_SYS_A バス電圧(CVM2MONIEN=1時) ->
+  VDD_3V3_SYS_B シャント電圧(CVM2MONIEN=1時) -> VDD_3V3_SYS_B バス電圧(CVM2MONIEN=1時) ->
+  VDD_3V3_IO シャント電圧(CVM2MONIEN=1時) -> VDD_3V3_IO バス電圧(CVM2MONIEN=1時)
+
+C: Current Voltage Monitorから読み出した測定データが格納されているMonitor Registerを読み出します。
+
+D: 外部からのTemp Request Triggerを受信した時、System Monitorは、Temperature Sensorから温度の読み出しを行う自動I2Cアクセスを開始します。
+
+Current Voltage Monitorからの測定データの読み出しは、以下の順番で行われます。
+  Temperature Sensor1 温度(TEMP1MONIEN=1時) -> Temperature Sensor2 温度(TEMP2MONIEN=1時) -> Temperature Sensor3 温度(TEMP3MONIEN=1時)
+
+E: Temperature Sensorから読み出した測定データが格納されているMonitor Registerを読み出します。
+
+F: 以降はこれら手順[B]～[E]の動作を繰り返します。
+
+Current Voltage MonitorとTemperature Sensorの測定データの取得の順序に特に制限は無く、それぞれのRequest Triggerを受信する度に、測定結果の読み出しを行う自動I2Cアクセスを開始します。
+Current Voltage MonitorとTemperature Sensorの測定結果の読み出しを行う自動I2Cアクセスが競合した場合は、先に実行していた読み出しが全て完了した後に、アクセス競合により調停していた読み出しを開始します。
+
+Board Health Monitoring Access Control RegisterのMonitor Enableビットを"0"にすることで、特定のデバイスからの読み出しをスキップすることができます。
+
+測定結果の読み出しを行う自動I2Cアクセス中に、Board Health I2C Retry Count Setting Registerに設定されているアクセス回数連続でI2Cエラーが発生した場合は、Board Health Interrupt Status Registerの対象となるデバイスのxxxxACCERRのビットが"1"にセットされ、以降のI2Cエラーが発生したデバイスへの測定結果の読み出しを行う自動I2Cアクセスはスキップされます。
+また、同時に、Board Health Monitoring Access Control Registerの対象となるデバイスのxxxxMONIENのビットも"0"にクリアされ、次回以降のRequest Trigger時にもI2Cエラーが発生したデバイスへの測定結果の読み出しを行う自動I2Cアクセスは実行されなくなります。
+
+#+CAPTION: 測定結果の読み出し中の自動I2Cエラー発生時のフロー
+[[file:./images/ohltm_measure_err_flow.png]]
+
+ソフトウェアにより、対象となる測定データのMonitor Registerを読み出したときに、xxxxNUPDビットに"1"がセットされている事で、前回読み出した測定データから更新されていないことを知ることができます。
+測定結果が取得できなかったデバイスの測定結果の読み出したい場合は、再度対象となるデバイスのxxxxMONIENのビットを"1"にセットするか、ソフトウェア指示により直接I2Cアクセスを行う必要があります。
 
 * General Purpose Timer
 General Purpose Timerは、SC OBC FPGAの運用時間の管理や、FPGA内の CPUや IPコアへのタイミング通知を行うためのタイマーモジュールです。
