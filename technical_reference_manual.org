@@ -1042,16 +1042,19 @@ Board Health Access Status Registerは、実行中のI2Cアクセスのステー
 ここでは、SC OBC FPGAを起動してから、電源電圧、温度の測定データの取得を行うまでのレジスタ操作手順を以下に示します。
 デバイスの初期設定に関する詳細は「初期設定の書き込みを行う自動I2Cアクセス」の章、デバイスの測定データの取得に関する詳細は「測定結果の読み出しを行う自動I2Cアクセス」の章を参照してください。
 
+測定データの取得を開始するタイミングのトリガの発行は、General Purpose Timerで行われる為、本章では General Purpose Timerの操作手順も含めて説明します。
+General Purpose Timerに関する詳細は「General Purpose Timer」の章を参照して下さい。
+
 #+CAPTION: 測定データの取得までのレジスタ操作手順
 [[file:./images/ohltm_after_start_seq.png]]
 
 I2C通信のビットレートを決めるタイミングパラメータの初期設定は、システムクロックが48MHzの場合のStandard-mode(100Kb/s)をターゲットに設定されています。
 システムクロックの動作周波数が48MHz、かつ、I2C通信のビットレートがStandard-mode(100Kb/s)から変更が無い場合は、以下の手順[1]を省略することができます。
 
-また、I2C通信エラー発生による再実行アクセスを含めたI2Cアクセス実行回数の初期設定は3回に設定されています。
-I2Cアクセス実行回数が3回から変更が無い場合は、以下の手順[2]を省略することができます。
-
 1: Board Health I2C Prescale Setting Registerへ、I2C通信速度の設定(システムクロックのプリスケール設定)を行います。
+
+I2C通信エラー発生による再実行アクセスを含めたI2Cアクセス実行回数の初期設定は3回に設定されています。
+I2Cアクセス実行回数が3回から変更が無い場合は、以下の手順[2]を省略することができます。
 
 2: Board Health I2C Access Count Setting Registerへ、I2Cアクセス実行回数の設定を行います。
 
@@ -1063,14 +1066,53 @@ I2Cアクセス実行回数が3回から変更が無い場合は、以下の手�
 
 6: Board Health Interrupt Status RegisterのINITACCENDビットに"1"を書き込み、INITACCENDビットをクリアします。
 
-7: Board Health Monitoring Access Control Registerの全てのxxxxMONIENビットを"1"に設定し、デバイスの測定データの取得を開始します。
+7: Hardware Interrupt Timer Control Registerの HITRUNMDビットを"0"、HITOPMD2フィールドと HITOPMD3フィールドをそれぞれ"0b10"に設定し、Hardware Interrupt Timerの Run Modeを Restartモード、出力比較チャネル2(Current Voltage Monitor測定データ取得開始トリガの発行チャネル)と出力比較チャネル3(Temperature Sensor測定データ取得開始トリガの発行チャネル)の割り込み動作モードをパルス形式に設定します。
 
-Monitoring Enableのセット後は、定期的に測定データがデバイスから読み出され各Monitor Registerへ格納されます。
+8: Hardware Interrupt Timer Prescaler Registerへ、Hardware Interrupt Timerの単位時間の設定(リファレンスクロック[24MHz]のプリスケール設定)を行います。
+
+9: Hardware Interrupt Timer Output Compare Register 1へ、Hardware Interrupt Timerの周期を設定します。
+
+10: Hardware Interrupt Timer Output Compare Register 2へ、Hardware Interrupt Timerによる Current Voltage Monitorの測定データ取得開始タイミングを設定します。
+
+11: Hardware Interrupt Timer Output Compare Register 3へ、Hardware Interrupt Timerによる Temperature Sensorの測定データ取得開始タイミングを設定します。
+
+12: Board Health Monitoring Access Control Registerの全ての xxxxMONIENビットを"1"に設定し、測定データのモニタリング機能を有効にします。
+
+13: Timer Enable Control Registerの HITENビットを"1"に設定し、Hardware Interrupt Timerの動作を開始します。
+
+Hardware Interrupt Timerが動作を開始すると、SC OBC FPGAはデバイスの測定データの取得を開始し、定期的に測定データがデバイスから読み出され各 Monitor Registerへ格納されます。
 Monitor Registerの更新周期は、各デバイスのデータ測定の待機時間に合わせて設定される、General Purpose Timerからのイベントトリガの発行周期に同期します。
 
-8: Current Voltage Monitorの測定データの更新周期に合わせて、各デバイスおよび各Channelのシャント電圧、バス電圧の測定データを読み出します。
+14: System Monitor内の Current Voltage Monitor測定データの更新タイミングに合わせて、各デバイスおよび各 Channelのシャント電圧、バス電圧の測定データを Board Health xxxxxxx Voltage Monitor Registerから読み出します。
 
-9: Temperature Sensorの測定データの更新周期に合わせて、各デバイスの温度の測定データを読み出します。
+15: System Monitor内の Temperature Sensor測定データの更新タイミングに合わせて、各デバイスの温度の測定データを Board Health Temperature x Monitor Registerから読み出します。
+
+一例として、Hardware Interrupt Timerの周期を 9ms、Current Voltage Monitorへの I2Cアクセス開始タイミングを Timer周期の始点から 0.5ms後、Temperature Sensorへの I2Cアクセス開始タイミング をTimer周期の始点から 7ms後とする場合の、手順[8]から手順[11]で行う各レジスタ設定値は以下となります。
+- 手順[8] Write Data: 0x00002EDF (単位時間を 41.66ns x 12000 = 0.5msに設定)
+- 手順[9] Write Data: 0x00000012 (周期を 0.5ms x 18 = 9msに設定)
+- 手順[10] Write Data: 0x00000001 (CVMアクセス開始を 0.5ms x 1 = 0.5msに設定)
+- 手順[11] Write Data: 0x0000000E (TEMPアクセス開始を 0.5ms x 14 = 7msに設定)
+
+上記に設定した場合の、Hardware Interrupt Timerの動作と、各デバイスへ I2Cリードアクセスを行うタイミングを以下に示します。
+
+#+CAPTION: Hardware Interrupt Timerの動作とI2Cリードアクセスタイミング
+[[file:./images/ohltm_timer_timing.png]]
+
+Hardware Interrupt Timerが動作を開始してから 0.5ms後に、Hardware Interrupt Timerの出力比較チャネル2の比較イベントが発生する事で、General Purpose  Timerは System Monitorへトリガを発行し、Current Voltage Monitorの測定データの I2Cリードアクセスを行います。
+Hardware Interrupt Timerが動作を開始してから 7ms後に、Hardware Interrupt Timerの出力比較チャネル3の比較イベントが発生する事で、General Purpose  Timerは System Monitorへトリガを発行し、Temperature Sensorの測定データの I2Cリードアクセスを行います。
+Hardware Interrupt Timerが動作を開始してから 9ms後に、Hardware Interrupt Timerの出力比較チャネル1の比較イベントが発生する事で、General Purpose Timerが満了し、Timerの値は'0'に戻ります。
+以降は、General Purpose Timerがクリアされた時間を起点に同じ動作を繰り返します。
+
+一度Monitor Registerを読み出してから次に同じ Monitor Registerを読み出すまでに、Monitor Registerに格納されているデータの更新が行われていなかった場合は、対象の Monitor Registerの bit31に "1"がセットされます。
+
+I2Cリードアクセスでは、1つの測定データの取得に 0.5ms(100Kb/s)の時間が掛かります。
+各デバイス合計の I2Cリードアクセス時間はそれぞれ以下となる為、Hardware Interrupt Timerの周期は 7.5msより大きい時間に設定を行う必要があります。
+- Current Voltage Monitor: 6ms (全12データ)
+- Temperature Sensor: 1.5ms(全3データ)
+
+また、各デバイスの AD変換時間(デバイスの中でセンサーデータが更新される時間)の周期は以下となっています。
+- Current Voltage Monitor: 6.6ms [1.1ms×2種の電圧(バス電圧/シャント電圧)×3ch]
+- Temperature Sensor: 27.5ms
 
 初期設定以外でのデバイスの設定変更を行う場合や、デバイスの割り込み機能により異常を検出したことなどからデバイスレジスタの操作を行いたい場合は、ソフトウェア指示により任意のデバイスレジスタへ直接I2Cアクセスを行う必要があります。
 
