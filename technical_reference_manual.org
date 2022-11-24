@@ -100,6 +100,22 @@ Mission Bus SystemはユーザーがCubeSatのミッションを行うためのI
 |                                 | User IO Group 4 x 6 pin, Cortex-M3 JTAG兼用 (3.3V固定)                                      |
 | Debug Port                      | ARM SWJ-DP Interface                                                                        |
 
+** IP Core Version
+
+Space Cubicsが作成した IPコアの管理バージョンを以下に示します。
+これらのバージョンは、各 IPコアのレジスタで管理されている IP Version Register (Offset: 0xF000)を読み出すことで確認することができます。
+
+| IP Core               | Version |
+|-----------------------+---------|
+| System Register       | v1.0.0  |
+| System Monitor        | v1.0.0  |
+| General Purpose Timer | v1.0.0  |
+| HRMEM                 | v1.0.0  |
+| QSPI Controller       | v0.1.1  |
+| CAN Controller        | v0.1.1  |
+| AHB UART Lite         | v1.0.0  |
+| I2C Master Controller | v0.1.1  |
+
 * Memory Map
 以下に、SC OBC FPGAのメモリマップを示します。
 
