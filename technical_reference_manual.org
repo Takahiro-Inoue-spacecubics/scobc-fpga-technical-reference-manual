@@ -436,6 +436,7 @@ System Monitorは、Base Address 0x4F04_0000に配置されています。
 |              0x4F040050 | SYSMON_SEM_EINJECT1 | SEM Error Injection Command Register 1   | 0x00000000 |
 |              0x4F040054 | SYSMON_SEM_EINJECT2 | SEM Error Injection Command Register 2   | 0x00000000 |
 | 0x4F041000 - 0x4F041FFF | SYSMON_XADC_REG     | XADC Register Window                     | ---------- |
+|              0x4F04F000 | SYSMON_VER          | System Monitor IP Version Register       |          - |
 
 *** Watchdog Control Register (Offset 0x0000)
 Watchdog Control Registerは、SC OBC FPGAの Watchdogの制御を行うためのレジスタです。
@@ -642,6 +643,16 @@ Status Registerにアクセスするためのレジスタアドレスを以下�
 | 0x4F041270 | Min VCCBRAM        | 電源投入または最後に XADCをリセットしてから記録された最小VCCBRAM測定値が格納されます。                         |
 
 System Monitorの XADC Register Windowからは、XADCのすべてのレジスタ領域にアクセスする事ができますが、アラーム機能は現状実装されておりません。
+
+*** System Monitor IP Version Register (Offset: 0xF000)
+System Monitor IP Version Registerは、System Monitorの IPコアバージョンを示すレジスタです。
+
+#+CAPTION: System Monitor IP Version Register ビットフィールド
+|   bit | Symbol        | Field                           | Description                                   | R/W |
+|-------+---------------+---------------------------------+-----------------------------------------------+-----|
+| 31:24 | SYSMON_MAJVER | System Monitor IP Major Version | System MonitorコアのMajor Versionを示します。 | RO  |
+| 23:16 | SYSMON_MINVER | System Monitor IP Minor Version | System MonitorコアのMinor Versionを示します。 | RO  |
+|  15:0 | SYSMON_PATVER | System Monitor IP Patch Version | System MonitorコアのPatch Versionを示します。 | RO  |
 
 * General Purpose Timer
 General Purpose Timerは、SC OBC FPGAの運用時間の管理や、FPGA内の CPUや IPコアへのタイミング通知を行うためのタイマーモジュールです。
