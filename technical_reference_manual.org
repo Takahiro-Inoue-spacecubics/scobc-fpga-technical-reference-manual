@@ -284,6 +284,8 @@ SC OBC FPGAが Configurationし TRCHが FPGAの起動完了を認識する間、
 TRCHが FPGAの起動完了を認識すると、Configuration Memoryの制御権は FPGAに移行します。
 FPGAは CFGMEMSELビットの設定によって、ソフトウェアによる選択を行うか、QSPIコアによる選択を行うかを決定します。
 
+CFGMEMSELビットの設定変更により、選択する Configuration Memoryの切り替えを行う場合は、設定の変更後に CFGMEMMONビットを読み出し、切り替えの設定が完了していることを確認する必要があります。
+
 *** Power Cycle Register (Offset 0x0020)
 Power Cycle Registerは SC OBC FPGAに対する Power Cycle要求を発行するためのレジスタです。
 
