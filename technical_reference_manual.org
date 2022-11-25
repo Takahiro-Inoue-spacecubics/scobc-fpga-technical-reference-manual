@@ -446,7 +446,7 @@ System Monitorは、Base Address 0x4F04_0000に配置されています。
 |              0x4F042060 | SYSMON_BHM_SWCTLR       | Board Health Software Access Control Register             | 0x00000000 |
 |              0x4F042064 | SYSMON_BHM_SWWDTR       | Board Health Software Access Write Data Register          | 0x00000000 |
 |              0x4F042068 | SYSMON_BHM_SWRDTR       | Board Health Software Access Read Data Register           | 0x00000000 |
-|              0x4F042080 | SYSMON_BHM_I2CPSCR      | Board Health I2C Prescale Setting Register                | 0x00000077 |
+|              0x4F042080 | SYSMON_BHM_I2CPSCR      | Board Health I2C Prescale Setting Register                | 0x000001DF |
 |              0x4F042084 | SYSMON_BHM_I2CACCCNTR   | Board Health I2C Access Count Setting Register            | 0x00000002 |
 |              0x4F0420C0 | SYSMON_BHM_ASR          | Board Health Access Status Register                       | 0x00000000 |
 
@@ -957,7 +957,7 @@ Board Health Software Access Read Data Registerは、ソフトウェア指示に
 *** Board Health I2C Prescale Setting Register (Offset 0x2080)
 Board Health I2C Prescale Setting Registerは、I2C通信におけるタイミングパラメータの設定を行うためのレジスタです。
 このレジスタによるシステムクロック周波数のプリスケール設定が、I2C通信に使用されるタイミングパラメータへ反映されます。
-初期設定値は、システムクロックが48MHzの場合のFast-mode(400Kb/s)でのI2C通信をターゲットとして設定されています。
+初期設定値は、システムクロックが48MHzの場合のStandard-mode(100Kb/s)でのI2C通信をターゲットとして設定されています。
 
 #+CAPTION: Board Health I2C Prescale Setting Register ビットフィールド
 |   bit | Symbol            | Field                          | Description                                                                            | R/W |
@@ -993,20 +993,20 @@ $SCL\ Low\ Time(tLOW)[s] = tHDDAT[s] + tSUDAT[s]$
 $Bus\ Free\ Time(tBUF)[s] = System\ Clock\ period[s] \times \frac{SYSMON\_BHM\_CLKPSC+1}{2}+5$
 #+END_QUOTE
 
-システムクロックが96MHz, 48MHz, 24MHzにおいて、Fast-mode(400Kb/s)で通信する場合の、本レジスタの設定値とI2C通信の各タイミング値の例を以下に示します。
+システムクロックが96MHz, 48MHz, 24MHzにおいて、Standard-mode(100Kb/s)で通信する場合の、本レジスタの設定値とI2C通信の各タイミング値の例を以下に示します。
 
-#+CAPTION: Fast-mode(400Kb/s)通信時のBoard Health I2C Prescale Setting Registerの設定例とI2Cタイミング (システムクロックのサイクル数)
-| Parameter                           | System Clock=96MHz     | System Clock=48MHz[default] | System Clock=24MHz    |
-|-------------------------------------+------------------------+-----------------------------+-----------------------|
-| SYSMON_BHM_CLKPSC[15:0] 設定値      | 0x00EF [Divide by 240] | 0x0077 [Divide by 120]      | 0x003B [Divide by 60] |
-| START Hold Timing(tHDSTA)           | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
-| STOP Setup Timing(tSUSTO)           | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
-| Repeated START Setup Timing(tSUSTA) | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
-| Clock High Timing(tHIGH)            | 115 Cycle [1.20us]     | 55 Cycle [1.15us]           | 25 Cycle [1.04us]     |
-| Data Hold Timing(tHDDAT)            | 5 Cycle [0.05us]       | 5 Cycle [0.10us]            | 5 Cycle [0.21us]      |
-| Data Setup Timing(tSUDAT)           | 120 Cycle [1.25us]     | 60 Cycle [1.25us]           | 30 Cycle [1.25us]     |
-| Clock Low Timing(tLOW)              | 125 Cycle [1.30us]     | 65 Cycle [1.35us]           | 35 Cycle [1.46us]     |
-| Bus Free Timing(tBUF)               | 125 Cycle [1.30us]     | 65 Cycle [1.35us]           | 35 Cycle [1.46us]     |
+#+CAPTION: Standard-mode(100Kb/s)通信時のBoard Health I2C Prescale Setting Registerの設定例とI2Cタイミング (システムクロックのサイクル数)
+| Parameter                           | System Clock=96MHz     | System Clock=48MHz[default] | System Clock=24MHz     |
+|-------------------------------------+------------------------+-----------------------------+------------------------|
+| SYSMON_BHM_CLKPSC[15:0] 設定値      | 0x03BF [Divide by 960] | 0x01DF [Divide by 480]      | 0x00EF [Divide by 240] |
+| START Hold Timing(tHDSTA)           | 480 Cycle [5.00us]     | 240 Cycle [5.00us]          | 120 Cycle [5.00us]     |
+| STOP Setup Timing(tSUSTO)           | 480 Cycle [5.00us]     | 240 Cycle [5.00us]          | 120 Cycle [5.00us]     |
+| Repeated START Setup Timing(tSUSTA) | 480 Cycle [5.00us]     | 240 Cycle [5.00us]          | 120 Cycle [5.00us]     |
+| Clock High Timing(tHIGH)            | 475 Cycle [4.95us]     | 235 Cycle [4.90us]          | 115 Cycle [4.79us]     |
+| Data Hold Timing(tHDDAT)            | 5 Cycle [0.05us]       | 5 Cycle [0.10us]            | 5 Cycle [0.21us]       |
+| Data Setup Timing(tSUDAT)           | 480 Cycle [5.00us]     | 240 Cycle [5.00us]          | 120 Cycle [5.00us]     |
+| Clock Low Timing(tLOW)              | 485 Cycle [5.05us]     | 245 Cycle [5.10us]          | 125 Cycle [5.21us]     |
+| Bus Free Timing(tBUF)               | 485 Cycle [5.05us]     | 245 Cycle [5.10us]          | 125 Cycle [5.21us]     |
 
 *** Board Health I2C Access Count Setting Register (Offset 0x2084)
 Board Health I2C Access Count Setting Registerは、I2C通信エラー発生による再実行アクセスを含めたI2Cアクセス実行回数の設定を行うためのレジスタです。
@@ -1045,8 +1045,8 @@ Board Health Access Status Registerは、実行中のI2Cアクセスのステー
 #+CAPTION: 測定データの取得までのレジスタ操作手順
 [[file:./images/ohltm_after_start_seq.png]]
 
-I2C通信のビットレートを決めるタイミングパラメータの初期設定は、システムクロックが48MHzの場合のFast-mode(400Kb/s)をターゲットに設定されています。
-システムクロックの動作周波数が48MHz、かつ、I2C通信のビットレートがFast-mode(400Kb/s)から変更が無い場合は、以下の手順[1]を省略することができます。
+I2C通信のビットレートを決めるタイミングパラメータの初期設定は、システムクロックが48MHzの場合のStandard-mode(100Kb/s)をターゲットに設定されています。
+システムクロックの動作周波数が48MHz、かつ、I2C通信のビットレートがStandard-mode(100Kb/s)から変更が無い場合は、以下の手順[1]を省略することができます。
 
 また、I2C通信エラー発生による再実行アクセスを含めたI2Cアクセス実行回数の初期設定は3回に設定されています。
 I2Cアクセス実行回数が3回から変更が無い場合は、以下の手順[2]を省略することができます。
