@@ -286,6 +286,9 @@ FPGAは CFGMEMSELビットの設定によって、ソフトウェアによる選
 
 CFGMEMSELビットの設定変更により、選択する Configuration Memoryの切り替えを行う場合は、設定の変更後に CFGMEMMONビットを読み出し、切り替えの設定が完了していることを確認する必要があります。
 
+現在の SC OBC FPGAには QSPIコアによる Configuration Memoryのメモリパトロール機能は実装されていません。
+CFGMEMOWNERビットを "1"に設定した場合 Configuration Memoryの選択が正しく行われないため、CFGMEMOWNERビットは "0"から変更しないでください。
+
 *** Power Cycle Register (Offset 0x0020)
 Power Cycle Registerは SC OBC FPGAに対する Power Cycle要求を発行するためのレジスタです。
 
