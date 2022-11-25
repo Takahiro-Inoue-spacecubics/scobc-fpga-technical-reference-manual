@@ -665,6 +665,20 @@ Global Timerの最小時間は 0.0625秒であり、最大 268435455.9375秒(約
 Software Interrupt Timerと Hardware Interrupt Timerは、CPU 及び IPコアに割り込みを発生させるタイマーとして使用する事ができます。
 Software Interrupt Timerと Hardware Interrupt Timerの最小時間は Prescalerにより設定する事ができます。
 
+割り込みを発生させるタイマーの時間を設定する出力比較チャネルを、Global Timerは 4つ、Software Interrupt Timerと Hardware Interrupt Timerはそれぞれ 8つずつ持っています。
+Global Timerと Software Interrupt Timerは、全ての出力比較チャネルを CPUへの割り込み要因として任意に使用することができます。
+Hardware Interrupt Timerは、Channel 1を除き、それぞれの出力比較チャネルが特定の IPコアのイベントトリガに使用されます。
+
+Hardware Interrupt Timerの出力チャネルと、接続されている IP Core(機能)との対応を以下に示します。
+
+#+CAPTION: Hardware Interrupt Timerの出力比較チャネル対応
+| Output Compare Channel | to IP Core                                                              |
+|------------------------+-------------------------------------------------------------------------|
+|                      1 | Reserved (Restartモード時のタイマーの周期設定として使用する)            |
+|                      2 | System Monitor (Current Voltage Monitorへの データ読み出しアクセス要求) |
+|                      3 | System Monitor (Temperature Sensorへの データ読み出しアクセス要求)      |
+|                    4-8 | Reserved (Unused)                                                       |
+
 ** レジスタ詳細
 General Purpose Timerは、Base Address 0x4F05_0000に配置されています。
 
