@@ -1251,20 +1251,21 @@ HRMEM IP Version Registerは、HRMEM IPコアのバージョン管理レジス�
 QSPI Controllerは、SC OBCモジュールに搭載するメモリとSPIプロトコルによる通信を行うためのモジュールです。
 QSPI Controllerは、Single SPIモード, Dual SPIモード, Quad SPIモードに対応しており、メモリとの高速な通信を行う事ができます。
 
-SC OBCモジュールには、FPGA Configurationデータを格納するためのNOR Flashメモリと、運用データを格納するための NOR Flashメモリ 及び FeRAMが搭載されています。
+SC OBCモジュールには、FPGA Configurationデータを格納するためのNOR Flashメモリと、運用データを格納するための NOR Flashメモリ 及び FeRAMが、それぞれ2個ずつ搭載されています。
 これらのメモリとの通信を行う場合には、QSPI Controllerを使用します。
 
 SC OBCモジュールに実装される メモリの型番は以下の通りです。
 各メモリの仕様については、ベンダーからリリースされている Datasheetを参照してください。
 
-| Memory                                     | Vendor               | Part Number |
-|--------------------------------------------+----------------------+-------------|
-| Configurationデータ格納用 NOR Flash Memory | infineon (旧Cypress) | S25FL256L   |
-| データ格納用 NOR Flash Memory              | infineon (旧Cypress) | S25FL256L   |
-| データ格納用 FeRAM                         | infineon (旧Cypress) | CY15B104QSN |
+| Memory                                     | Vendor               | Part Number | SC OBC搭載数 |
+|--------------------------------------------+----------------------+-------------+--------------|
+| Configurationデータ格納用 NOR Flash Memory | infineon (旧Cypress) | S25FL256L   | 2 個         |
+| データ格納用 NOR Flash Memory              | infineon (旧Cypress) | S25FL256L   | 2 個         |
+| データ格納用 FeRAM                         | infineon (旧Cypress) | CY15B104QSN | 2 個         |
 
 ** レジスタ詳細
 QSPI Controllerは、各メモリにアクセスするため 3個搭載されています。
+同じ種類のメモリへのアクセスは一つの QSPI Controllerで行い、Chip Selectの制御により排他でアクセスを行うことが出来ます。
 各コアは以下のアドレスに配置されています。
 
 #+CAPTION: QSPI Controller アドレスの割り当て
