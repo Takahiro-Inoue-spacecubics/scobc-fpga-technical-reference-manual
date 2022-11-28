@@ -1295,13 +1295,23 @@ QSPI Controllerには以下のレジスタが実装されています。
 *** QSPI Access Control Register (Offset 0x0000)
 QSPI Access Control Registerは、SPIアクセスにおける SS信号、I/Oモードを制御するためのレジスタです。
 
+Data Memory Access QSPI Controllerと FeRAM Access QSPI Controllerは、Chip Select信号の制御を SPISSCTL1ビット または SPISSCTL2ビットの設定により行います。
+これらのビットのうち、SPIアクセスを行ういずれか 1つのメモリ Portのビットのみを "1"にセットして、SPIアクセスの操作を行ってください。
+SPISSCTL1ビットと SPISSCTL2ビットを、同時に "1"にセットすることは禁止動作となります。
+
+Configurationデータ格納用 NOR Flash Memoryへ SPIアクセスを行う場合は、アクセスを行う Portに関わらず、常に SPISSCTL1ビットにより Chip Select信号を制御します。
+このため、Configuration Memory Access QSPI Controllerには SPISSCTL2ビットは実装されていません。
+Configurationデータ格納用 NOR Flash Memoryの SPIアクセスを行う Portの選択は、System Registerの Configuration Memory Registerの設定により行うことができます。
+詳細は、System Registerの「Configuration Memory Register」の章を参照してください。
+
 #+CAPTION: QSPI Access Control Register ビットフィールド
-|   bit | Symbol    | Field          | Description                                                                                                                                   | R/W |
-|-------+-----------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:18 | -         | Reserved       | Reserved                                                                                                                                      | -   |
-| 17:16 | SPIIOMODE | SPI I/O Mode   | SPIアクセスにおけるI/Oモードを設定します。 2b00: Standard(Single)-IO SPIモード 2b01: Dual-IO SPIモード 2b10: Quad-IO SPIモード 2b11: 設定禁止 | R/W |
-|  15:1 | -         | Reserved       | Reserved                                                                                                                                      | -   |
-|     0 | SPISSCTL  | SPI SS Control | デバイスへの SS(Chip Select)信号を制御するためのビットです。 0: SS信号をインアクティブ状態に設定します 1: SS信号をアクティブ状態に設定します  | R/W |
+|   bit | Symbol    | Field                 | Description                                                                                                                                                                              | R/W |
+|-------+-----------+-----------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
+| 31:18 | -         | Reserved              | Reserved                                                                                                                                                                                 | -   |
+| 17:16 | SPIIOMODE | SPI I/O Mode          | SPIアクセスにおけるI/Oモードを設定します。 2b00: Standard(Single)-IO SPIモード 2b01: Dual-IO SPIモード 2b10: Quad-IO SPIモード 2b11: 設定禁止                                            | R/W |
+|  15:2 | -         | Reserved              | Reserved                                                                                                                                                                                 | -   |
+|     1 | SPISSCTL2 | SPI Port 2 SS Control | Port 2側のデバイスへの SS(Chip Select)信号を制御するためのビットです。 0: デバイス Port 2のSS信号をインアクティブ状態に設定します 1: デバイス Port 2のSS信号をアクティブ状態に設定します | R/W |
+|     0 | SPISSCTL1 | SPI Port 1 SS Control | Port 1側のデバイスへの SS(Chip Select)信号を制御するためのビットです。 0: デバイス Port 1のSS信号をインアクティブ状態に設定します 1: デバイス Port 1のSS信号をアクティブ状態に設定します | R/W |
 
 *** QSPI TX Data Register (Offset 0x0004)
 QSPI TX Data Registerは、SPIデバイスにデータを送信するためのレジスタです。
