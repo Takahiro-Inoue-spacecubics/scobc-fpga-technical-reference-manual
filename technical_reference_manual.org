@@ -366,7 +366,7 @@ FPGAからは、FUSE_DNAのうち 63 bitから 7 bitを、Device DNAとして読
 #+CAPTION: Device DNA 2 Register ビットフィールド
 |  bit | Symbol  | Field               | Description                                      | R/W |
 |------+---------+---------------------+--------------------------------------------------+-----|
-| 31:0 | DNA_MSB | Device DNA MAB side | Device DNAの bit 63:32が格納されるレジスタです。 | RO  |
+| 31:0 | DNA_MSB | Device DNA MSB side | Device DNAの bit 63:32が格納されるレジスタです。 | RO  |
 
 * System Monitor
 System Monitorは、SC OBC FPGAのシステムを監視するためのモジュールです。
