@@ -19,6 +19,7 @@ CAN Controllerは、Base Address 0x4040_0000に配置されています。
 | 0x000C | CAN_BTSR   | CAN Bit Timing Setting Register          | 0x00000000 |
 | 0x0010 | CAN_ECNTR  | CAN Error Count Register                 | 0x00000000 |
 | 0x0018 | CAN_STSR   | CAN Status Register                      | 0x00000000 |
+| 0x001C | CAN_FIFOSR | CAN FIFO Status Register                 | 0x00000000 |
 | 0x0020 | CAN_ISR    | CAN Interrupt Status Register            | 0x00000000 |
 | 0x0024 | CAN_IER    | CAN Interrupt Enable Register            | 0x00000000 |
 | 0x0030 | CAN_TMR1   | CAN TX Message Register1                 | 0x00000000 |
@@ -126,6 +127,17 @@ CAN Status Registerは、CAN Controllerのステータスを表示するレジ�
 |  3:2 | CAN_ESTS   | Error Status                 | Errorステータスを示すビットです。0b00: CAN_EN Disable 0b01: Error Active状態 0b10: Error Passive状態 0b11: Bus OFF状態                                                                         | RO  |
 |    1 | CAN_EWRN   | Error Warning                | Error Warningステータスを示すビットです。Transmit Error Counterまたは Receive Error Counterが 96以上の値を示すとき、Error Warning状態と認識します。0: 非Error Warning状態 1: Error Warning状態 | RO  |
 |    0 | CAN_BBUSY  | Bus Busy                     | CANバスのステータスを示すビットです。0: Bus Idle状態 または CAN_ENが Disable状態 1: Bus Busy状態 (CANバスの通信が行われている状態)                                                             | RO  |
+
+*** CAN FIFO Status Register (Offset 0x001C)
+CAN FIFO Status Registerは、TX FIFO 及び RX FIFOに格納されている CAN Messageの量を読み出すためのレジスタです。
+
+#+CAPTION: CAN FIFO Status Register ビットフィールド
+|   bit | Symbol        | Field             | Description                                                         | R/W |
+|-------+---------------+-------------------+---------------------------------------------------------------------+-----|
+| 31:23 | -             | Reserved          | Reserved                                                            | -   |
+| 22:16 | CAN_RXFIFOLVL | CAN RX FIFO Level | RX FIFOに格納されている CAN Messageの現在の量を示すフィールドです。 | RO  |
+|  15:7 | -             | Reserved          | Reserved                                                            | -   |
+|   6:0 | CAN_TXFIFOLVL | CAN TX FIFO Level | TX FIFOに格納されている CAN Messageの現在の量を示すフィールドです。 | RO  |
 
 *** CAN Interrupt Status Register (Offset: 0x0020)
 CAN Interrupt Status Registerは、CAN Controllerの動作における割り込みステータスレジスタです。
