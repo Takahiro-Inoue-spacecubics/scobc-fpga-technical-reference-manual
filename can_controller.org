@@ -557,7 +557,7 @@ Sync Segmentの長さは Tq 1Cycle固定です。
 [[file:./images/can_gen_bit_timing.png]]
 
 SC_OBC_FPGAでは、CANクロックの周波数は24MHz固定となります。
-ビットタイミング設定値の一例として、ビットレートを 1Mbps、サンプリングポイントを 75%、同期ジャンプ幅の最大時間を 4Tqサイクルする場合の各レジスタの設定値は、CAN Time Quantum Prescaler Registerが 0x0000_0001 (TQPSET=0x1)、CAN Bit Timing Setting Registerが 0x0000_01A7 (TS1=0x7, TS2=0x2, SWJ=0x3)となります。
+ビットタイミング設定値の一例として、ビットレートを 1Mbps、サンプリングポイントを 75%、同期ジャンプ幅の最大時間を 4Tqサイクルする場合の各レジスタの設定値は、CAN Time Quantum Prescaler Registerが 0x0000_0001 (TQPSET=0x1)、CAN Bit Timing Setting Registerが 0x0000_01A7 (TS1=0x7, TS2=0x2, SJW=0x3)となります。
 
 制限事項：Bit Stream Processorモジュールでのフレーム処理に必要な時間として、Time segment 2の長さは、必ず CANクロックの 3Cycle以上となるように設定する必要があります。
 
