@@ -52,7 +52,7 @@ CAN Controllerは、Base Address 0x4040_0000に配置されています。
 CAN Enable Registerは、CAN通信におけるEnable設定を行うレジスタです。
 
 CAN_ENが Disableの時、CAN Controllerは CANバスに Recessive (High level)を出力し、メッセージの送受信を行いません。
-CAN_ENが Enableになると、CANバス上に連続する 11bitの Recessiveを 1回検出した後にエラーアクティブ状態となり、メッセージの送受信が可能となります。
+CAN_ENが Enableになると、CANバス上に連続する 11bitの Recessiveを 1回検出した後にエラーアクティブ状態となり、CAN通信が可能となります。
 
 #+CAPTION: CAN Enable Register ビットフィールド
 |  bit | Symbol | Field      | Description                                       | R/W |
@@ -343,6 +343,10 @@ CAN RX Message Register 4は、受信した CANフレームのデータフィー
 
 *** CAN Acceptance Filter Enable Register (Offset 0x0060)
 CAN Acceptance Filter Enable Registerは、CAN Acceptance Filterの設定を行うレジスタです。
+
+初期状態では全ての CAN Acceptance Filterが無効となっており、メッセージの受信を行うことができません。
+CANメッセージの受信を行うには、必ず 1個以上の CAN Acceptance Filterを有効化する必要があります。
+
 このレジスタは、CAN Enable Registerの CAN_ENビットが "0"の時のみ書き込みが可能です。
 
 #+CAPTION: CAN Acceptance Filter Enable Register ビットフィールド
@@ -541,7 +545,9 @@ CAN Controllerの起動後に行う必要がある初期設定の手順につい
 
 2: CAN Bit Timing Setting Registerに Time Segment 1、 Time Segment 2、Synchronization Jump Width周期の設定を行います。ここで設定した値に1を加算した数の Tq数が、各区間の周期として設定され、1ビットの周期、受信ビットのサンプリングポイント、再同期の最大ジャンプ幅が決定されます。
 
+メッセージの受信を行う場合は、CAN Acceptance Filterの設定を行う必要があります。
 受信メッセージのアクセプタンスフィルタリングを使用する場合は、必要なフィルタ数に応じて、CAN Acceptance Filter ID Mask Register 1、2、3、4、CAN Acceptance Filter ID Value Register 1、2、3、4、CAN Acceptance Filter Enable Registerの設定(3: ～ 5:)を行います。
+自身が送信するメッセージを除いた全てのメッセージを受信する場合は、CAN Acceptance Filter Enable Registerの設定(5:)のみを行い、いずれかのCAN_UAFビットを "1"にセットします。
 
 3: 使用するフィルタ数の CAN Acceptance Filter ID Mask Registerに受信メッセージと比較に使用するビット設定します。受信メッセージが標準フレームだった場合は、ID2[17:0]、ERTRフィールドのフィルタリング設定は無視されます。
 
