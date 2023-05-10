@@ -227,11 +227,11 @@ CAN TX Message Register 1は、送信する CANフレームのメッセージ識
 #+CAPTION: CAN TX Message Register 1 ビットフィールド
 |   bit | Symbol     | Field                                   | Description                                                                                                                                                                                                             | R/W |
 |-------+------------+-----------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:21 | CAN_TXID1  | TX Standard Message ID                  | ID[28:18]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。                                                                                                             | WO  |
-|    20 | CAN_TXSRTR | TX Standard Remote Transmission Request | RTR、SRRビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。- RTR(標準フレーム): 0: データフレーム 1: リモートフレーム - SRR(拡張フレーム): 1に設定する必要があります。 | WO  |
-|    19 | CAN_TXIDE  | TX Identifier Extension                 | IDEビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。0: 標準フレーム 1: 拡張フレーム                                                                                  | WO  |
-|  18:1 | CAN_TXID2  | TX Extended Message ID                  | ID[17:0]を TX FIFOに書き込むためのフィールドです。拡張フレーム送信時のみ使用されます。CAN_TXIDEビットを "0"に設定した場合、このフィールドに書き込んだデータは使用されません。                                           | WO  |
-|     0 | CAN_TXERTR | TX Extended Remote Transmission Request | 拡張フレーム送信でのみ使用されるRTRビット値を設定します。0: データフレーム 1: リモートフレーム CAN_TXIDEビットを0に設定した場合は、このビットの書き込み値は使用されません。                                             | WO  |
+| 31:21 | CAN_TXID1  | TX Standard Message ID                  | ID[28:18]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。                                                                                                             | R/W |
+|    20 | CAN_TXSRTR | TX Standard Remote Transmission Request | RTR、SRRビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。- RTR(標準フレーム): 0: データフレーム 1: リモートフレーム - SRR(拡張フレーム): 1に設定する必要があります。 | R/W |
+|    19 | CAN_TXIDE  | TX Identifier Extension                 | IDEビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。0: 標準フレーム 1: 拡張フレーム                                                                                  | R/W |
+|  18:1 | CAN_TXID2  | TX Extended Message ID                  | ID[17:0]を TX FIFOに書き込むためのフィールドです。拡張フレーム送信時のみ使用されます。CAN_TXIDEビットを "0"に設定した場合、このフィールドに書き込んだデータは使用されません。                                           | R/W |
+|     0 | CAN_TXERTR | TX Extended Remote Transmission Request | 拡張フレーム送信でのみ使用されるRTRビット値を設定します。0: データフレーム 1: リモートフレーム CAN_TXIDEビットを0に設定した場合は、このビットの書き込み値は使用されません。                                             | R/W |
 
 *** CAN TX Message Register 2 (Offset 0x0034)
 CAN TX Message Register 2は、送信する CANフレームのデータ長コード (DLC)を TX FIFOに書き込むためのレジスタです。
@@ -240,33 +240,31 @@ CAN TX Message Register 2は、送信する CANフレームのデータ長コー
 |  bit | Symbol    | Field               | Description                                                                                                                                                                                                                                         | R/W |
 |------+-----------+---------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
 | 31:4 | -         | Reserved            | Reserved                                                                                                                                                                                                                                            | -   |
-|  3:0 | CAN_TXDLC | TX Data Length Code | DCL[3:0]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。このフィールドには データフレームの送信 Byte数や リモートフレームの送信時に要求するデータの Byte数を設定します。設定可能な値は 0〜8です。 | WO  |
+|  3:0 | CAN_TXDLC | TX Data Length Code | DCL[3:0]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。このフィールドには データフレームの送信 Byte数や リモートフレームの送信時に要求するデータの Byte数を設定します。設定可能な値は 0〜8です。 | R/W |
 
 *** CAN TX Message Register 3 (Offset 0x0038)
 CAN TX Message Register 3は、CANのデータフレームを送信する場合において、データフィールドの Byte 0から Byte 3 (Data Word 1)を書き込むためのレジスタです。
-データフレームを送信しない場合でも、このレジスタは書き込みを行う必要があります。
-データフレームを送信しない場合は、この値に書き込む値は無効であるため、どんな値を書き込んでも構いません。
+データフレームを送信しない場合は、このレジスタに書き込まれている値は使用されません。
 
 #+CAPTION: CAN TX Message Register 3 ビットフィールド
 |   bit | Symbol    | Field          | Description                                                                                                                                                                                                                                   | R/W |
 |-------+-----------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:24 | CAN_TXDB0 | TX Data Byte 0 | データフィールドの Byte 0を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 1以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-| 23:16 | CAN_TXDB1 | TX Data Byte 1 | データフィールドの Byte 1を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 2以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|  15:8 | CAN_TXDB2 | TX Data Byte 2 | データフィールドの Byte 2を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 3以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|   7:0 | CAN_TXDB3 | TX Data Byte 3 | データフィールドの Byte 3を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 4以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
+| 31:24 | CAN_TXDB0 | TX Data Byte 0 | データフィールドの Byte 0を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 1以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+| 23:16 | CAN_TXDB1 | TX Data Byte 1 | データフィールドの Byte 1を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 2以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|  15:8 | CAN_TXDB2 | TX Data Byte 2 | データフィールドの Byte 2を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 3以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|   7:0 | CAN_TXDB3 | TX Data Byte 3 | データフィールドの Byte 3を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 4以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
 
 *** CAN TX Message Register 4 (Offset 0x003C)
 CAN TX Message Register 4は、CANのデータフレームを送信する場合において、データフィールドの Byte 4から Byte 7 (Data Word 2)を書き込むためのレジスタです。
-データフレームを送信しない場合でも、このレジスタは書き込みを行う必要があります。
-データフレームを送信しない場合は、この値に書き込む値は無効であるため、どんな値を書き込んでも構いません。
+データフレームを送信しない場合は、このレジスタに書き込まれている値は使用されません。
 
 #+CAPTION: CAN TX Message Register 4 ビットフィールド
 |   bit | Symbol    | Field          | Description                                                                                                                                                                                                                                   | R/W |
 |-------+-----------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:24 | CAN_TXDB4 | TX Data Byte 4 | データフィールドの Byte 4を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 5以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-| 23:16 | CAN_TXDB5 | TX Data Byte 5 | データフィールドの Byte 5を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 6以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|  15:8 | CAN_TXDB6 | TX Data Byte 6 | データフィールドの Byte 6を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 7以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|   7:0 | CAN_TXDB7 | TX Data Byte 7 | データフィールドの Byte 7を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 8以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
+| 31:24 | CAN_TXDB4 | TX Data Byte 4 | データフィールドの Byte 4を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 5以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+| 23:16 | CAN_TXDB5 | TX Data Byte 5 | データフィールドの Byte 5を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 6以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|  15:8 | CAN_TXDB6 | TX Data Byte 6 | データフィールドの Byte 6を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 7以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|   7:0 | CAN_TXDB7 | TX Data Byte 7 | データフィールドの Byte 7を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX Message Register 2の DLCフィールドを 8以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
 
 *** CAN TX High Priority Message Register 1 (Offset 0x0040)
 CAN TX High Priority Message Register 1は、高優先で送信する CANフレームのメッセージ識別子 (IDR)を TX FIFOに書き込むためのレジスタです。
@@ -277,11 +275,11 @@ CAN TX High Priority Message Register 1、2、3、4にデータを書き込み C
 #+CAPTION: CAN TX High Priority Message Register 1 ビットフィールド
 |   bit | Symbol       | Field                                                 | Description                                                                                                                                                                                                             | R/W |
 |-------+--------------+-------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:21 | CAN_TXHPID1  | TX High Priority Standard Message ID                  | ID[28:18]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。                                                                                                             | WO  |
-|    20 | CAN_TXHPSRTR | TX High Priority Standard Remote Transmission Request | RTR、SRRビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。- RTR(標準フレーム): 0: データフレーム 1: リモートフレーム - SRR(拡張フレーム): 1に設定する必要があります。 | WO  |
-|    19 | CAN_TXHPIDE  | TX High Priority Identifier Extension                 | IDEビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。0: 標準フレーム 1: 拡張フレーム                                                                                  | WO  |
-|  18:1 | CAN_TXHPID2  | TX High Priority Extended Message ID                  | ID[17:0]を TX FIFOに書き込むためのフィールドです。拡張フレーム送信時のみ使用されます。CAN_TXIDEビットを "0"に設定した場合、このフィールドに書き込んだデータは使用されません。                                           | WO  |
-|     0 | CAN_TXHPERTR | TX High Priority Extended Remote Transmission Request | 拡張フレーム送信でのみ使用されるRTRビット値を設定します。0: データフレーム 1: リモートフレーム CAN_TXIDEビットを0に設定した場合は、このビットの書き込み値は使用されません。                                             | WO  |
+| 31:21 | CAN_TXHPID1  | TX High Priority Standard Message ID                  | ID[28:18]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。                                                                                                             | R/W |
+|    20 | CAN_TXHPSRTR | TX High Priority Standard Remote Transmission Request | RTR、SRRビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。- RTR(標準フレーム): 0: データフレーム 1: リモートフレーム - SRR(拡張フレーム): 1に設定する必要があります。 | R/W |
+|    19 | CAN_TXHPIDE  | TX High Priority Identifier Extension                 | IDEビットを TX FIFOに書き込むためのビットです。標準フレーム、拡張フレームの両方の送信時に使用されます。0: 標準フレーム 1: 拡張フレーム                                                                                  | R/W |
+|  18:1 | CAN_TXHPID2  | TX High Priority Extended Message ID                  | ID[17:0]を TX FIFOに書き込むためのフィールドです。拡張フレーム送信時のみ使用されます。CAN_TXIDEビットを "0"に設定した場合、このフィールドに書き込んだデータは使用されません。                                           | R/W |
+|     0 | CAN_TXHPERTR | TX High Priority Extended Remote Transmission Request | 拡張フレーム送信でのみ使用されるRTRビット値を設定します。0: データフレーム 1: リモートフレーム CAN_TXIDEビットを0に設定した場合は、このビットの書き込み値は使用されません。                                             | R/W |
 
 *** CAN TX High Priority Message Register 2 (Offset 0x0044)
 CAN TX High Priority Message Register 2は、高優先で送信する CANフレームのデータ長コード (DLC)を TX FIFOに書き込むためのレジスタです。
@@ -293,13 +291,12 @@ CAN TX High Priority Message Register 1、2、3、4にデータを書き込み C
 |  bit | Symbol      | Field                              | Description                                                                                                                                                                                                                                         | R/W |
 |------+-------------+------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
 | 31:4 | -           | Reserved                           | Reserved                                                                                                                                                                                                                                            | -   |
-|  3:0 | CAN_TXHPDLC | TX  High Priority Data Length Code | DCL[3:0]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。このフィールドには データフレームの送信 Byte数や リモートフレームの送信時に要求するデータの Byte数を設定します。設定可能な値は 0〜8です。 | WO  |
+|  3:0 | CAN_TXHPDLC | TX  High Priority Data Length Code | DCL[3:0]を TX FIFOに書き込むためのフィールドです。標準フレーム、拡張フレームの両方の送信時に使用されます。このフィールドには データフレームの送信 Byte数や リモートフレームの送信時に要求するデータの Byte数を設定します。設定可能な値は 0〜8です。 | R/W |
 
 *** CAN TX High Priority Message Register 3 (Offset 0x0048)
 CAN TX High Priority Message Register 3は、CANのデータフレームを送信する場合において、データフィールドの Byte 0から Byte 3 (Data Word 1)を書き込むためのレジスタです。
 
-データフレームを送信しない場合でも、このレジスタは書き込みを行う必要があります。
-データフレームを送信しない場合は、この値に書き込む値は無効であるため、どんな値を書き込んでも構いません。
+データフレームを送信しない場合は、このレジスタに書き込まれている値は使用されません。
 
 CAN TX High Priority Message Register 1、2、3、4にデータを書き込み CAN TX Message Control Registerの TXHBSDRビットを "1"にセットすると、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
 このRegisterの仕様は CAN TX Message Register 3と同じです。
@@ -307,16 +304,15 @@ CAN TX High Priority Message Register 1、2、3、4にデータを書き込み C
 #+CAPTION: CAN TX High Priority Message Register 3 ビットフィールド
 |   bit | Symbol      | Field                        | Description                                                                                                                                                                                                                                                 | R/W |
 |-------+-------------+------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:24 | CAN_TXHPDB0 | TX High Priority Data Byte 0 | データフィールドの Byte 0を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 1以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-| 23:16 | CAN_TXHPDB1 | TX High Priority Data Byte 1 | データフィールドの Byte 1を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 2以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|  15:8 | CAN_TXHPDB2 | TX High Priority Data Byte 2 | データフィールドの Byte 2を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 3以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|   7:0 | CAN_TXHPDB3 | TX High Priority Data Byte 3 | データフィールドの Byte 3を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 4以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
+| 31:24 | CAN_TXHPDB0 | TX High Priority Data Byte 0 | データフィールドの Byte 0を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 1以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+| 23:16 | CAN_TXHPDB1 | TX High Priority Data Byte 1 | データフィールドの Byte 1を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 2以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|  15:8 | CAN_TXHPDB2 | TX High Priority Data Byte 2 | データフィールドの Byte 2を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 3以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|   7:0 | CAN_TXHPDB3 | TX High Priority Data Byte 3 | データフィールドの Byte 3を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 4以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
 
 *** CAN TX High Priority Message Register 4 (Offset 0x004C)
 CAN TX High Priority Message Register 4は、CANのデータフレームを送信する場合において、データフィールドの Byte 4から Byte 7 (Data Word 2)を書き込むためのレジスタです。
 
-データフレームを送信しない場合でも、このレジスタは書き込みを行う必要があります。
-データフレームを送信しない場合は、この値に書き込む値は無効であるため、どんな値を書き込んでも構いません。
+データフレームを送信しない場合は、このレジスタに書き込まれている値は使用されません。
 
 CAN TX High Priority Message Register 1、2、3、4にデータを書き込み CAN TX Message Control Registerの TXHBSDRビットを "1"にセットすると、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
 このRegisterの仕様は CAN TX Message Register 4と同じです。
@@ -324,10 +320,10 @@ CAN TX High Priority Message Register 1、2、3、4にデータを書き込み C
 #+CAPTION: CAN TX High Priority Message Register4 ビットフィールド
 |   bit | Symbol      | Field                        | Description                                                                                                                                                                                                                                                 | R/W |
 |-------+-------------+------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:24 | CAN_TXHPDB4 | TX High Priority Data Byte 4 | データフィールドの Byte 4を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 5以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-| 23:16 | CAN_TXHPDB5 | TX High Priority Data Byte 5 | データフィールドの Byte 5を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 6以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|  15:8 | CAN_TXHPDB6 | TX High Priority Data Byte 6 | データフィールドの Byte 6を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 7以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
-|   7:0 | CAN_TXHPDB7 | TX High Priority Data Byte 7 | データフィールドの Byte 7を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 8以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | WO  |
+| 31:24 | CAN_TXHPDB4 | TX High Priority Data Byte 4 | データフィールドの Byte 4を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 5以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+| 23:16 | CAN_TXHPDB5 | TX High Priority Data Byte 5 | データフィールドの Byte 5を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 6以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|  15:8 | CAN_TXHPDB6 | TX High Priority Data Byte 6 | データフィールドの Byte 6を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 7以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
+|   7:0 | CAN_TXHPDB7 | TX High Priority Data Byte 7 | データフィールドの Byte 7を TX FIFOに書き込むためのフィールドです。データフレームを送信する場合で 且つ、CAN TX High Priority Message Register 2の DLCフィールドを 8以上に設定した場合、このフィールドに書き込んだデータがデータフレームとして送信されます。 | R/W |
 
 *** CAN RX Message Register 1 (Offset 0x0050)
 CAN RX Message Register 1は、受信した CANフレームのメッセージ識別子 (IDR)を RX FIFOから読み出すためのレジスタです。
