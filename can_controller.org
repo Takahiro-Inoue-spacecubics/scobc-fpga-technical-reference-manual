@@ -517,17 +517,18 @@ CAN Acceptance Filter ID Mask Register 4で "1"がセットされているビッ
 |     0 | CAN_ERTRAFV4 | Extended Remote Transmission Request Value 4 | CAN Acceptance Filter 4において、拡張フレームの RTRビットのフィルター値を設定するためのビットです。                                            | R/W |
 
 *** CAN FIFO and Buffer Reset Register (Offset 0x00F0)
-CAN FIFO and Buffer Reset Registerは、TX FIFO, RX FIFO, TX High Priority Bufferのリセットを行うためのレジスタです。
+CAN FIFO and Buffer Reset Registerは、TX FIFO, RX FIFO, TX High Priority Buffer, TXCOMPID FIFOのリセットを行うためのレジスタです。
 何らかの理由により FIFOおよび Bufferのクリアを行いたい場合にこのレジスタを使用します。
 
 #+CAPTION: CAN FIFO and Buffer Reset Register ビットフィールド
-|   bit | Symbol        | Field                         | Description                                                                                                                   | R/W |
-|-------+---------------+-------------------------------+-------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:18 | -             | Reserved                      | Reserved                                                                                                                      | -   |
-|    17 | CAN_TXHPBRST  | TX High Priority Buffer Reset | TX High Priority Bufferをリセットするためのビットです。本ビットに "1"をセットすると TX High Priority Bufferをリセットします。 | WO  |
-|    16 | CAN_TXFIFORST | TX FIFO Reset                 | TX FIFOをリセットするためのビットです。本ビットに "1"をセットすると TX FIFOをリセットします。                                 | WO  |
-|  15:1 | -             | Reserved                      | Reserved                                                                                                                      | -   |
-|     0 | CAN_RXFIFORST | RX FIFO Reset                 | RX FIFOをリセットするためのビットです。本ビットに "1"をセットすると RX FIFOをリセットします。                                 | WO  |
+|   bit | Symbol         | Field                         | Description                                                                                                                   | R/W |
+|-------+----------------+-------------------------------+-------------------------------------------------------------------------------------------------------------------------------+-----|
+| 31:19 | -              | Reserved                      | Reserved                                                                                                                      | -   |
+|    18 | CAN_TCIFIFORST | TXCOMPID FIFO Reset           | TXCOMPID FIFOをリセットするためのビットです。本ビットに "1"をセットすると TXCOMPID FIFOをリセットします。                     | WO  |
+|    17 | CAN_TXHPBRST   | TX High Priority Buffer Reset | TX High Priority Bufferをリセットするためのビットです。本ビットに "1"をセットすると TX High Priority Bufferをリセットします。 | WO  |
+|    16 | CAN_TXFIFORST  | TX FIFO Reset                 | TX FIFOをリセットするためのビットです。本ビットに "1"をセットすると TX FIFOをリセットします。                                 | WO  |
+|  15:1 | -              | Reserved                      | Reserved                                                                                                                      | -   |
+|     0 | CAN_RXFIFORST  | RX FIFO Reset                 | RX FIFOをリセットするためのビットです。本ビットに "1"をセットすると RX FIFOをリセットします。                                 | WO  |
 
 *** CAN Self Test Mode Control Register (Offset 0x0100)
 CAN Self Test Mode Control Registerは、CAN Controllerの Self Testを行うための、デバッグ用レジスタです。
