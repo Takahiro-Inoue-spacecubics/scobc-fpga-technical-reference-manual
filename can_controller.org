@@ -23,6 +23,7 @@ CAN Controllerは、Base Address 0x4040_0000に配置されています。
 | 0x0020 | CAN_ISR    | CAN Interrupt Status Register               | 0x00000000 |
 | 0x0024 | CAN_IER    | CAN Interrupt Enable Register               | 0x00000000 |
 | 0x0028 | CAN_TCMIR  | CAN TX Complete Message Identifier Register | 0x00000000 |
+| 0x002C | CAN_TMCR   | CAN TX Message Control Register             | 0x00000000 |
 | 0x0030 | CAN_TMR1   | CAN TX Message Register1                    | 0x00000000 |
 | 0x0034 | CAN_TMR2   | CAN TX Message Register2                    | 0x00000000 |
 | 0x0038 | CAN_TMR3   | CAN TX Message Register3                    | 0x00000000 |
@@ -206,6 +207,18 @@ CAN TX Complete Message Identifier Registerは、送信が完了した CANフレ
 |    19 | CAN_TXCOMPIDE  | TX Complete Identifier Extension                 | 送信が完了したメッセージの IDEビットを TXCOMPID_FIFOから読み出すためのビットです。               | RO  |
 |  18:1 | CAN_TXCOMPID2  | TX Complete Extended Message ID                  | 送信が完了したメッセージの ID[17:0]フィールドを TXCOMPID_FIFOから読み出すためのフィールドです。  | RO  |
 |     0 | CAN_TXCOMPERTR | TX Complete Extended Remote Transmission Request | 送信が完了したメッセージの RTRビットを TXCOMPID_FIFOから読み出すためのビットです。               | RO  |
+
+*** CAN TX Message Control Register (Offset 0x002C)
+CAN TX Message Control Registerは、送信する CANフレームに関するストレージの制御を行うためのレジスタです。
+
+#+CAPTION: CAN TX Message Control Register ビットフィールド
+|  bit | Symbol      | Field                                    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | R/W |
+|------+-------------+------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
+| 31:9 | -           | Reserved                                 | Reserved                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | -   |
+|    8 | CAN_TXDCE   | TX Complete Detect Enable                | TX FIFO または TX High Priority Bufferに書き込んだデータの送信が完了した時、CAN Message Transmit Done割り込みを発生させるか設定するためのビットです。このフィールドは TXFSDRビット または TXHBSDRビットを書き込む前か、書き込みと同時にセットしてください。1: 書き込んだデータの送信完了時にTRNSDN割り込みを発生させ、送信したメッセージ識別子 (IDR)を TXCOMPID FIFOに格納します 0: 書き込んだデータの送信完了時にTRNSDN割り込みを発生させず、送信したメッセージ識別子 (IDR)を TXCOMPID FIFOに格納しません | R/W |
+|  7:2 | -           | Reserved                                 | Reserved                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | -   |
+|    1 | CAN_TXHBSDR | TX High Priority Buffer Store Data Ready | 送信メッセージを TX High Priority Bufferへ書き込むためのビットです。送信メッセージを CAN TX High Priority Message Register 1, 2, 3, 4へ書き込んだ後に、このビットに "1"をセットすると TX High Priority Bufferにデータが書き込まれ送信可能な状態になります。                                                                                                                                                                                                                                                | WO  |
+|    0 | CAN_TXFSDR  | TX FIFO Store Data Ready                 | 送信メッセージを TX FIFOへ書き込むためのビットです。送信メッセージを CAN TX Message Register 1, 2, 3, 4へ書き込んだ後に、このビットに "1"をセットすると TX FIFOにデータが書き込まれ送信可能な状態になります。                                                                                                                                                                                                                                                                                              | WO  |
 
 *** CAN TX Message Register 1 (Offset 0x0030)
 CAN TX Message Register 1は、送信する CANフレームのメッセージ識別子 (IDR)を TX FIFOに書き込むためのレジスタです。
