@@ -142,7 +142,7 @@ CAN FIFO Status Registerは、TX FIFO 及び RX FIFOに格納されている CAN
 
 *** CAN Interrupt Status Register (Offset: 0x0020)
 CAN Interrupt Status Registerは、CAN Controllerの動作における割り込みステータスレジスタです。
-それぞれのビットは 1をセットすると、該当の割り込みをクリアする事ができます。
+CAN_TRNSDNビットを除き、それぞれのビットは 1をセットすると、該当の割り込みをクリアする事ができます。
 
 #+CAPTION: CAN Interrupt Status Register ビットフィールド
 |   bit | Symbol      | Field                            | Description                                                                                                                                                                                                                                                                                                          | R/W  |
@@ -164,7 +164,7 @@ CAN Interrupt Status Registerは、CAN Controllerの動作における割り込�
 |     3 | CAN_TXFOVF  | TX FIFO Overflow                 | TX FIFOの Overflowが発生したことを示すビットです。TX FIFO容量を超えるメッセージを CAN TX Message Registerにメッセージを書き込んだ場合、本ビットが "1"にセットされます。                                                                                                                                              | R/WC |
 |     2 | CAN_TXHBOVF | TX High Priority Buffer Overflow | TX High Priority Bufferの Overflowが発生したことを示すビットです。TX High Priority Bufferにメッセージが格納されている状態で CAN TX High Priority Message Registerにメッセージを書き込んだ場合、本ビットが "1"にセットされます。                                                                                      | R/WC |
 |     1 | CAN_ARBLST  | CAN Arbitration Lost             | 送信メッセージの Arbitration Lostが発生した事を示すビットです。データフレーム、リモートフレームの送信中に他ノードとの送信競合が発生し、調停制御により送信を停止した時、本ビットが "1"にセットされます。                                                                                                              | R/WC |
-|     0 | CAN_TRNSDN  | CAN Message Transmit Done        | メッセージを送信した事を示すビットです。データフレームまたはリモートフレームの送信が正常に完了した時、本ビットが "1"にセットされます。                                                                                                                                                                               | R/WC |
+|     0 | CAN_TRNSDN  | CAN Message Transmit Done        | メッセージを送信したことを示すビットです。データフレームまたはリモートフレームの送信が正常に完了し、送信したメッセージ識別子 (IDR)が TXCOMPID FIFOに格納された時、本ビットが "1"にセットされます。本ビットは TXCOMPID FIFOが Empty状態になるとクリアされます。                                                       | RO   |
 
 *** CAN Interrupt Enable Register (Offset: 0x0024)
 CAN Interrupt Enable Registerは、CAN Controllerの動作において発生した割り込みイベントを割り込み出力信号に通知するか設定するためのレジスタです。
