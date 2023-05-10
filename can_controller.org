@@ -12,41 +12,42 @@ CAN Controllerは、 ISO 11898-1, CAN2.0A および CAN2.0Bに準拠した CAN�
 CAN Controllerは、Base Address 0x4040_0000に配置されています。
 
 #+CAPTION: CAN Controller Register メモリマップ
-| Offset | Symbol     | Register                                 |    Initial |
-|--------+------------+------------------------------------------+------------|
-| 0x0000 | CAN_ENR    | CAN Enable Register                      | 0x00000000 |
-| 0x0008 | CAN_TQPR   | CAN Time Quantum Prescaler Register      | 0x00000000 |
-| 0x000C | CAN_BTSR   | CAN Bit Timing Setting Register          | 0x00000000 |
-| 0x0010 | CAN_ECNTR  | CAN Error Count Register                 | 0x00000000 |
-| 0x0018 | CAN_STSR   | CAN Status Register                      | 0x00000000 |
-| 0x001C | CAN_FIFOSR | CAN FIFO Status Register                 | 0x00000000 |
-| 0x0020 | CAN_ISR    | CAN Interrupt Status Register            | 0x00000000 |
-| 0x0024 | CAN_IER    | CAN Interrupt Enable Register            | 0x00000000 |
-| 0x0030 | CAN_TMR1   | CAN TX Message Register1                 | 0x00000000 |
-| 0x0034 | CAN_TMR2   | CAN TX Message Register2                 | 0x00000000 |
-| 0x0038 | CAN_TMR3   | CAN TX Message Register3                 | 0x00000000 |
-| 0x003C | CAN_TMR4   | CAN TX Message Register4                 | 0x00000000 |
-| 0x0040 | CAN_THPMR1 | CAN TX High Priority Message Register1   | 0x00000000 |
-| 0x0044 | CAN_THPMR2 | CAN TX High Priority Message Register2   | 0x00000000 |
-| 0x0048 | CAN_THPMR3 | CAN TX High Priority Message Register3   | 0x00000000 |
-| 0x004C | CAN_THPMR4 | CAN TX High Priority Message Register4   | 0x00000000 |
-| 0x0050 | CAN_RMR1   | CAN RX Message Register1                 | 0x00000000 |
-| 0x0054 | CAN_RMR2   | CAN RX Message Register2                 | 0x00000000 |
-| 0x0058 | CAN_RMR3   | CAN RX Message Register3                 | 0x00000000 |
-| 0x005C | CAN_RMR4   | CAN RX Message Register4                 | 0x00000000 |
-| 0x0060 | CAN_AFER   | CAN Acceptance Filter Enable Register    | 0x00000000 |
-| 0x0070 | CAN_AFIMR1 | CAN Acceptance Filter ID Mask Register1  | 0x00000000 |
-| 0x0074 | CAN_AFIVR1 | CAN Acceptance Filter ID Value Register1 | 0x00000000 |
-| 0x0090 | CAN_AFIMR2 | CAN Acceptance Filter ID Mask Register2  | 0x00000000 |
-| 0x0094 | CAN_AFIVR2 | CAN Acceptance Filter ID Value Register2 | 0x00000000 |
-| 0x00B0 | CAN_AFIMR3 | CAN Acceptance Filter ID Mask Register3  | 0x00000000 |
-| 0x00B4 | CAN_AFIVR3 | CAN Acceptance Filter ID Value Register3 | 0x00000000 |
-| 0x00D0 | CAN_AFIMR4 | CAN Acceptance Filter ID Mask Register4  | 0x00000000 |
-| 0x00D4 | CAN_AFIVR4 | CAN Acceptance Filter ID Value Register4 | 0x00000000 |
-| 0x00F0 | CAN_FIFORR | CAN FIFO and Buffer Reset Register       | 0x00000000 |
-| 0x0100 | CAN_STMCR  | CAN Self Test Mode Control Register      | 0x00000000 |
-| 0x0200 | CAN_PSLMCR | CAN PHY Sleep Mode Control Register      | 0x00000000 |
-| 0xF000 | CAN_VER    | CAN Controller IP Version Register       |          - |
+| Offset | Symbol     | Register                                    |    Initial |
+|--------+------------+---------------------------------------------+------------|
+| 0x0000 | CAN_ENR    | CAN Enable Register                         | 0x00000000 |
+| 0x0008 | CAN_TQPR   | CAN Time Quantum Prescaler Register         | 0x00000000 |
+| 0x000C | CAN_BTSR   | CAN Bit Timing Setting Register             | 0x00000000 |
+| 0x0010 | CAN_ECNTR  | CAN Error Count Register                    | 0x00000000 |
+| 0x0018 | CAN_STSR   | CAN Status Register                         | 0x00000000 |
+| 0x001C | CAN_FIFOSR | CAN FIFO Status Register                    | 0x00000000 |
+| 0x0020 | CAN_ISR    | CAN Interrupt Status Register               | 0x00000000 |
+| 0x0024 | CAN_IER    | CAN Interrupt Enable Register               | 0x00000000 |
+| 0x0028 | CAN_TCMIR  | CAN TX Complete Message Identifier Register | 0x00000000 |
+| 0x0030 | CAN_TMR1   | CAN TX Message Register1                    | 0x00000000 |
+| 0x0034 | CAN_TMR2   | CAN TX Message Register2                    | 0x00000000 |
+| 0x0038 | CAN_TMR3   | CAN TX Message Register3                    | 0x00000000 |
+| 0x003C | CAN_TMR4   | CAN TX Message Register4                    | 0x00000000 |
+| 0x0040 | CAN_THPMR1 | CAN TX High Priority Message Register1      | 0x00000000 |
+| 0x0044 | CAN_THPMR2 | CAN TX High Priority Message Register2      | 0x00000000 |
+| 0x0048 | CAN_THPMR3 | CAN TX High Priority Message Register3      | 0x00000000 |
+| 0x004C | CAN_THPMR4 | CAN TX High Priority Message Register4      | 0x00000000 |
+| 0x0050 | CAN_RMR1   | CAN RX Message Register1                    | 0x00000000 |
+| 0x0054 | CAN_RMR2   | CAN RX Message Register2                    | 0x00000000 |
+| 0x0058 | CAN_RMR3   | CAN RX Message Register3                    | 0x00000000 |
+| 0x005C | CAN_RMR4   | CAN RX Message Register4                    | 0x00000000 |
+| 0x0060 | CAN_AFER   | CAN Acceptance Filter Enable Register       | 0x00000000 |
+| 0x0070 | CAN_AFIMR1 | CAN Acceptance Filter ID Mask Register1     | 0x00000000 |
+| 0x0074 | CAN_AFIVR1 | CAN Acceptance Filter ID Value Register1    | 0x00000000 |
+| 0x0090 | CAN_AFIMR2 | CAN Acceptance Filter ID Mask Register2     | 0x00000000 |
+| 0x0094 | CAN_AFIVR2 | CAN Acceptance Filter ID Value Register2    | 0x00000000 |
+| 0x00B0 | CAN_AFIMR3 | CAN Acceptance Filter ID Mask Register3     | 0x00000000 |
+| 0x00B4 | CAN_AFIVR3 | CAN Acceptance Filter ID Value Register3    | 0x00000000 |
+| 0x00D0 | CAN_AFIMR4 | CAN Acceptance Filter ID Mask Register4     | 0x00000000 |
+| 0x00D4 | CAN_AFIVR4 | CAN Acceptance Filter ID Value Register4    | 0x00000000 |
+| 0x00F0 | CAN_FIFORR | CAN FIFO and Buffer Reset Register          | 0x00000000 |
+| 0x0100 | CAN_STMCR  | CAN Self Test Mode Control Register         | 0x00000000 |
+| 0x0200 | CAN_PSLMCR | CAN PHY Sleep Mode Control Register         | 0x00000000 |
+| 0xF000 | CAN_VER    | CAN Controller IP Version Register          |          - |
 
 *** CAN Enable Register (Offset 0x0000)
 CAN Enable Registerは、CAN通信におけるEnable設定を行うレジスタです。
@@ -189,6 +190,18 @@ CAN Interrupt Enable Registerは、CAN Controllerの動作において発生し�
 |     2 | CAN_TXHBOVFENB | TX High Priority Buffer Overflow Enable | CAN Controllerの動作においてCAN_TXHBOVFイベントが発生した時に割り込み信号を発生させるかどうかを設定します。 | R/W |
 |     1 | CAN_ARBLSTENB  | CAN Arbitration Lost Enable             | CAN Controllerの動作においてCAN_ARBLSTイベントが発生した時に割り込み信号を発生させるかどうかを設定します。  | R/W |
 |     0 | CAN_TRNSDNENB  | CAN Message Transmit Done Enable        | CAN Controllerの動作においてCAN_TRNSDNイベントが発生した時に割り込み信号を発生させるかどうかを設定します。  | R/W |
+
+*** CAN TX Complete Message Identifier Register (Offset 0x0028)
+CAN TX Complete Message Identifier Registerは、送信が完了した CANフレームのメッセージ識別子 (IDR)を TXCOMPID FIFOから読み出すためのレジスタです。
+
+#+CAPTION: CAN TX Complete Message Identifier Register ビットフィールド
+|   bit | Symbol         | Field                                            | Description                                                                                      | R/W |
+|-------+----------------+--------------------------------------------------+--------------------------------------------------------------------------------------------------+-----|
+| 31:21 | CAN_TXCOMPID1  | TX Complete Standard Message ID                  | 送信が完了したメッセージの ID[28:18]フィールドを TXCOMPID_FIFOから読み出すためのフィールドです。 | RO  |
+|    20 | CAN_TXCOMPSRTR | TX Complete Standard Remote Transmission Request | 送信が完了したメッセージの SRRビットを TXCOMPID_FIFOから読み出すためのビットです。               | RO  |
+|    19 | CAN_TXCOMPIDE  | TX Complete Identifier Extension                 | 送信が完了したメッセージの IDEビットを TXCOMPID_FIFOから読み出すためのビットです。               | RO  |
+|  18:1 | CAN_TXCOMPID2  | TX Complete Extended Message ID                  | 送信が完了したメッセージの ID[17:0]フィールドを TXCOMPID_FIFOから読み出すためのフィールドです。  | RO  |
+|     0 | CAN_TXCOMPERTR | TX Complete Extended Remote Transmission Request | 送信が完了したメッセージの RTRビットを TXCOMPID_FIFOから読み出すためのビットです。               | RO  |
 
 *** CAN TX Message Register 1 (Offset 0x0030)
 CAN TX Message Register 1は、送信する CANフレームのメッセージ識別子 (IDR)を TX FIFOに書き込むためのレジスタです。
