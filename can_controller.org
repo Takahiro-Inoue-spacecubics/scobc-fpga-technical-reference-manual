@@ -146,28 +146,28 @@ CAN Interrupt Status Registerは、CAN Controllerの動作における割り込�
 CAN_TRNSDNビットを除き、それぞれのビットは 1をセットすると、該当の割り込みをクリアする事ができます。
 
 #+CAPTION: CAN Interrupt Status Register ビットフィールド
-|   bit | Symbol      | Field                            | Description                                                                                                                                                                                                                                                                                                          | R/W  |
-|-------+-------------+----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------|
-| 31:19 | -           | Reserved                         | Reserved                                                                                                                                                                                                                                                                                                             | -    |
-|    18 | CAN_BUSOFF  | Bus Off                          | Bus Offが発生したことを示すビットです。送信エラーカウント値が 255を超える状態を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                        | R/WC |
-|    17 | CAN_ERRPSV  | Error Passive                    | Error Passiveが発生したことを示すビットです。送信エラーカウント値 または 受信エラーカウント値が 128を超えた場合に本ビットが "1"にセットされます。                                                                                                                                                                    | R/WC |
-|    16 | CAN_ERRWRN  | Error Warning                    | Error Warningが発生したことを示すビットです。送信エラーカウント値 または 受信エラーカウント値が 96を超えた場合に本ビットが "1"にセットされます。                                                                                                                                                                     | R/WC |
-|    15 | -           | Reserved                         | Reserved                                                                                                                                                                                                                                                                                                             | -    |
-|    14 | CAN_TCIFOVF | TXCOMPID FIFO Overflow           | TXCOMPID FIFOの Overflowが発生したことを示すビットです。TXCOMPID FIFO容量を超える量の、送信が完了した CANフレームのメッセージ識別子が格納された場合に本ビットが "1"にセットされます。                                                                                                                                | R/WC |
-|    13 | CAN_TCIFUDF | TXCOMPID FIFO Underflow          | TXCOMPID FIFOの Underflowが発生したことを示すビットです。TXCOMPID FIFOが Empty状態の時に、CAN TX Complete Message Identifier Registerから読み出しを行った場合に本ビットが "1"にセットされます。                                                                                                                      | R/WC |
-|    12 | CAN_ACKER   | ACK Error                        | ACK Errorが発生したことを示すビットです。データフレーム、リモートフレームの送信中に ACK Slotビットで Recessive ("1")を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                 | R/WC |
-|    11 | CAN_BITER   | BIT Error                        | BIT Errorが発生したことを示すビットです。送信中の値と異なる受信値を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                                    | R/WC |
-|    10 | CAN_STFER   | Stuff Error                      | Stuff Errorが発生したことを示すビットです。受信中に CANバス上で同一の値を連続 6回検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                      | R/WC |
-|     9 | CAN_FMER    | Form Error                       | Form Errorが発生したことを示すビットです。受信中フレームの固定フィールド内で異なる Formatを検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                            | R/WC |
-|     8 | CAN_CRCER   | CRC Error                        | CRC Errorが発生したことを示すビットです。受信したデータフレーム、リモートフレームの CRC値の期待不一致を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                | R/WC |
-|     7 | CAN_RXFOVF  | RX FIFO Overflow                 | RX FIFOの Overflowが発生したことを示すビットです。RX FIFO容量を超えるメッセージを受信した場合に本ビットが "1"にセットされます。                                                                                                                                                                                      | R/WC |
-|     6 | CAN_RXFUDF  | RX FIFO Underflow                | RX FIFOの Underflowが発生したことを示すビットです。RX FIFOが Empty状態の時に、CAN RX Message Registerから読み出しを行った場合に本ビットが "1"にセットされます。                                                                                                                                                      | R/WC |
-|     5 | CAN_RXFVAL  | RX FIFO Data Valid               | RX FIFOにデータが格納されていることを示すビットです。RX FIFOが Not Empty状態となった場合に本ビットが "1"にセットされます。本ビットはクリアしても RX FIFOが Empty状態になるまで、セットされます。RX FIFOに複数のメッセージが格納されている場合、CAN RX Message Registerを読み出した時に、このビットがセットされます。 | R/WC |
-|     4 | CAN_RCVDN   | CAN Message Receive Done         | 新しいメッセージを受信した事を示すビットです。データフレームまたはリモートフレームを正常に受信し、RX FIFOへの受信メッセージの格納が完了した時、本ビットが "1"にセットされます。                                                                                                                                      | R/WC |
-|     3 | CAN_TXFOVF  | TX FIFO Overflow                 | TX FIFOの Overflowが発生したことを示すビットです。TX FIFO容量を超えるメッセージを CAN TX Message Registerにメッセージを書き込んだ場合、本ビットが "1"にセットされます。                                                                                                                                              | R/WC |
-|     2 | CAN_TXHBOVF | TX High Priority Buffer Overflow | TX High Priority Bufferの Overflowが発生したことを示すビットです。TX High Priority Bufferにメッセージが格納されている状態で CAN TX High Priority Message Registerにメッセージを書き込んだ場合、本ビットが "1"にセットされます。                                                                                      | R/WC |
-|     1 | CAN_ARBLST  | CAN Arbitration Lost             | 送信メッセージの Arbitration Lostが発生した事を示すビットです。データフレーム、リモートフレームの送信中に他ノードとの送信競合が発生し、調停制御により送信を停止した時、本ビットが "1"にセットされます。                                                                                                              | R/WC |
-|     0 | CAN_TRNSDN  | CAN Message Transmit Done        | メッセージを送信したことを示すビットです。データフレームまたはリモートフレームの送信が正常に完了し、送信したメッセージ識別子 (IDR)が TXCOMPID FIFOに格納された時、本ビットが "1"にセットされます。本ビットは TXCOMPID FIFOが Empty状態になるとクリアされます。                                                       | RO   |
+|   bit | Symbol      | Field                            | Description                                                                                                                                                                                                                                                                                                                             | R/W  |
+|-------+-------------+----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------|
+| 31:19 | -           | Reserved                         | Reserved                                                                                                                                                                                                                                                                                                                                | -    |
+|    18 | CAN_BUSOFF  | Bus Off                          | Bus Offが発生したことを示すビットです。送信エラーカウント値が 255を超える状態を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                                           | R/WC |
+|    17 | CAN_ERRPSV  | Error Passive                    | Error Passiveが発生したことを示すビットです。送信エラーカウント値 または 受信エラーカウント値が 128を超えた場合に本ビットが "1"にセットされます。                                                                                                                                                                                       | R/WC |
+|    16 | CAN_ERRWRN  | Error Warning                    | Error Warningが発生したことを示すビットです。送信エラーカウント値 または 受信エラーカウント値が 96を超えた場合に本ビットが "1"にセットされます。                                                                                                                                                                                        | R/WC |
+|    15 | -           | Reserved                         | Reserved                                                                                                                                                                                                                                                                                                                                | -    |
+|    14 | CAN_TCIFOVF | TXCOMPID FIFO Overflow           | TXCOMPID FIFOの Overflowが発生したことを示すビットです。TXCOMPID FIFO容量を超える量の、送信が完了した CANフレームのメッセージ識別子が格納された場合に本ビットが "1"にセットされます。                                                                                                                                                   | R/WC |
+|    13 | CAN_TCIFUDF | TXCOMPID FIFO Underflow          | TXCOMPID FIFOの Underflowが発生したことを示すビットです。TXCOMPID FIFOが Empty状態の時に、CAN TX Complete Message Identifier Registerから読み出しを行った場合に本ビットが "1"にセットされます。                                                                                                                                         | R/WC |
+|    12 | CAN_ACKER   | ACK Error                        | ACK Errorが発生したことを示すビットです。データフレーム、リモートフレームの送信中に ACK Slotビットで Recessive ("1")を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                    | R/WC |
+|    11 | CAN_BITER   | BIT Error                        | BIT Errorが発生したことを示すビットです。送信中の値と異なる受信値を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                                                       | R/WC |
+|    10 | CAN_STFER   | Stuff Error                      | Stuff Errorが発生したことを示すビットです。受信中に CANバス上で同一の値を連続 6回検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                                         | R/WC |
+|     9 | CAN_FMER    | Form Error                       | Form Errorが発生したことを示すビットです。受信中フレームの固定フィールド内で異なる Formatを検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                               | R/WC |
+|     8 | CAN_CRCER   | CRC Error                        | CRC Errorが発生したことを示すビットです。受信したデータフレーム、リモートフレームの CRC値の期待不一致を検出した場合に本ビットが "1"にセットされます。                                                                                                                                                                                   | R/WC |
+|     7 | CAN_RXFOVF  | RX FIFO Overflow                 | RX FIFOの Overflowが発生したことを示すビットです。RX FIFO容量を超えるメッセージを受信した場合に本ビットが "1"にセットされます。                                                                                                                                                                                                         | R/WC |
+|     6 | CAN_RXFUDF  | RX FIFO Underflow                | RX FIFOの Underflowが発生したことを示すビットです。RX FIFOが Empty状態の時に、CAN RX Message Registerから読み出しを行った場合に本ビットが "1"にセットされます。                                                                                                                                                                         | R/WC |
+|     5 | CAN_RXFVAL  | RX FIFO Data Valid               | RX FIFOにデータが格納されていることを示すビットです。RX FIFOが Not Empty状態となった場合に本ビットが "1"にセットされます。本ビットはクリアしても RX FIFOが Empty状態になるまで、セットされます。RX FIFOに複数のメッセージが格納されている場合、CAN RX Message Registerを読み出した時に、このビットがセットされます。                    | R/WC |
+|     4 | CAN_RCVDN   | CAN Message Receive Done         | 新しいメッセージを受信した事を示すビットです。データフレームまたはリモートフレームを正常に受信し、RX FIFOへの受信メッセージの格納が完了した時、本ビットが "1"にセットされます。                                                                                                                                                         | R/WC |
+|     3 | CAN_TXFOVF  | TX FIFO Overflow                 | TX FIFOの Overflowが発生したことを示すビットです。TX FIFO容量を超えるメッセージを TX FIFOに書き込んだ場合、本ビットが "1"にセットされます。                                                                                                                                                                                             | R/WC |
+|     2 | CAN_TXHBOVF | TX High Priority Buffer Overflow | TX High Priority Bufferの Overflowが発生したことを示すビットです。TX High Priority Bufferにメッセージが格納されている状態で TX High Priority Bufferに別のメッセージを書き込んだ場合、本ビットが "1"にセットされます。                                                                                                                   | R/WC |
+|     1 | CAN_ARBLST  | CAN Arbitration Lost             | 送信メッセージの Arbitration Lostが発生した事を示すビットです。データフレーム、リモートフレームの送信中に他ノードとの送信競合が発生し、調停制御により送信を停止した時、本ビットが "1"にセットされます。                                                                                                                                 | R/WC |
+|     0 | CAN_TRNSDN  | CAN Message Transmit Done        | メッセージを送信したことを示すビットです。CAN TX Message Control Registerの TXDCEビットを "1"にセットして書き込んだデータフレームまたはリモートフレームの送信が正常に完了し、送信したメッセージ識別子 (IDR)が TXCOMPID FIFOに格納された時、本ビットが "1"にセットされます。本ビットは TXCOMPID FIFOが Empty状態になるとクリアされます。 | RO   |
 
 *** CAN Interrupt Enable Register (Offset: 0x0024)
 CAN Interrupt Enable Registerは、CAN Controllerの動作において発生した割り込みイベントを割り込み出力信号に通知するか設定するためのレジスタです。
@@ -198,6 +198,7 @@ CAN Interrupt Enable Registerは、CAN Controllerの動作において発生し�
 
 *** CAN TX Complete Message Identifier Register (Offset 0x0028)
 CAN TX Complete Message Identifier Registerは、送信が完了した CANフレームのメッセージ識別子 (IDR)を TXCOMPID FIFOから読み出すためのレジスタです。
+このレジスタでは、CAN TX Message Control Registerの TXDCEビットを "1"にセットして 書き込んだ送信メッセージの IDRを読み出すことができます。
 
 #+CAPTION: CAN TX Complete Message Identifier Register ビットフィールド
 |   bit | Symbol         | Field                                            | Description                                                                                      | R/W |
@@ -270,7 +271,7 @@ CAN TX Message Register 4は、CANのデータフレームを送信する場合�
 *** CAN TX High Priority Message Register 1 (Offset 0x0040)
 CAN TX High Priority Message Register 1は、高優先で送信する CANフレームのメッセージ識別子 (IDR)を TX FIFOに書き込むためのレジスタです。
 
-CAN TX High Priority Message Register 1、2、3、4にデータを書き込むと、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
+CAN TX High Priority Message Register 1、2、3、4にデータを書き込み CAN TX Message Control Registerの TXHBSDRビットを "1"にセットすると、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
 このRegisterの仕様は CAN TX Message Register 1と同じです。
 
 #+CAPTION: CAN TX High Priority Message Register 1 ビットフィールド
@@ -285,7 +286,7 @@ CAN TX High Priority Message Register 1、2、3、4にデータを書き込む�
 *** CAN TX High Priority Message Register 2 (Offset 0x0044)
 CAN TX High Priority Message Register 2は、高優先で送信する CANフレームのデータ長コード (DLC)を TX FIFOに書き込むためのレジスタです。
 
-CAN TX High Priority Message Register 1、2、3、4にデータを書き込むと、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
+CAN TX High Priority Message Register 1、2、3、4にデータを書き込み CAN TX Message Control Registerの TXHBSDRビットを "1"にセットすると、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
 このRegisterの仕様は CAN TX Message Register 2と同じです。
 
 #+CAPTION: CAN TX High Priority Message Register 2 ビットフィールド
@@ -300,7 +301,7 @@ CAN TX High Priority Message Register 3は、CANのデータフレームを送�
 データフレームを送信しない場合でも、このレジスタは書き込みを行う必要があります。
 データフレームを送信しない場合は、この値に書き込む値は無効であるため、どんな値を書き込んでも構いません。
 
-CAN TX High Priority Message Register 1、2、3、4にデータを書き込むと、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
+CAN TX High Priority Message Register 1、2、3、4にデータを書き込み CAN TX Message Control Registerの TXHBSDRビットを "1"にセットすると、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
 このRegisterの仕様は CAN TX Message Register 3と同じです。
 
 #+CAPTION: CAN TX High Priority Message Register 3 ビットフィールド
@@ -317,7 +318,7 @@ CAN TX High Priority Message Register 4は、CANのデータフレームを送�
 データフレームを送信しない場合でも、このレジスタは書き込みを行う必要があります。
 データフレームを送信しない場合は、この値に書き込む値は無効であるため、どんな値を書き込んでも構いません。
 
-CAN TX High Priority Message Register 1、2、3、4にデータを書き込むと、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
+CAN TX High Priority Message Register 1、2、3、4にデータを書き込み CAN TX Message Control Registerの TXHBSDRビットを "1"にセットすると、TX FIFOに格納されているデータの有無に関わらず、優先して CAN TX High Priority Message Registerに書き込まれたデータが CANフレームとして送信されます。
 このRegisterの仕様は CAN TX Message Register 4と同じです。
 
 #+CAPTION: CAN TX High Priority Message Register4 ビットフィールド
