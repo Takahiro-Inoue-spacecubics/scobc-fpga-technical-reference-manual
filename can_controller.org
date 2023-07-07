@@ -536,9 +536,9 @@ CAN Controllerの起動後に行う必要がある初期設定の手順につい
 7: CAN Enable Registerの CAN_ENビットを "1"に設定し、CAN通信を開始(CAN Busへ接続)します。
 
 **** ビットタイミングの設定
-CAN通信における 1ビット時間は、Time Segment (Tq)の単位で分割された、Sync Segment、Time Segment 1、Time segment 2の 3つのセグメントフェーズの Total時間によって決まります。
+CAN通信における 1ビット時間は、Time Quantum (Tq)の単位で分割された、Sync Segment、Time Segment 1、Time segment 2の 3つのセグメントフェーズの Total時間によって決まります。
 
-Time Segment (Tq)の周期は CAN Time Quantum Prescaler Registerの TQPSETフィールドに CANクロックのクロックサイクル数を設定します。
+Time Quantum (Tq)の周期は CAN Time Quantum Prescaler Registerの TQPSETフィールドに CANクロックのクロックサイクル数を設定します。
 Time Segment 1、Time segment 2の長さは、CAN Bit Timing Setting Registerの TS1、TS2フィールドに Tqサイクル数を設定します。
 Sync Segmentの長さは Tq 1Cycle固定です。
 
