@@ -641,14 +641,12 @@ CAN Status Registerの TXHBFLビットが "0"の場合は送信メッセージ�
 TXHBFLビットが "1"の状態の時は TX High Priority Bufferが Full状態であるため、新たな送信メッセージを書き込む場合は TX High Priority Bufferが Not Full状態になるまで待つ必要があります。
 TX High Priority Bufferは 1つのメッセージのみ格納することができます。
 
-TX High Priority Bufferを使用する場合は、CAN TX High Priority Message Register 1～4へメッセージを書き込みます。
-書き込みを行う手順やフォーマットは TX_FIFO (CAN TX Message Register 1～4)と同様です。
+CAN TX Message Register1, 2, 3, 4に書き込みを行う手順やフォーマットは TX_FIFO と同様です。
+TX High Priority Bufferを使用する場合は、CAN TX Message Control Registerの設定時 (6:)に、TXHBSDRビットを "1"に設定します。
+送信が完了したことの通知の有無も TX_FIFOへの書き込み時と同様に、このときの TXDCEビットの値により設定することができます。
 
 メッセージの送信完了も TX FIFOのメッセージ送信時と同様、TRNSDNビットの割り込みにより知ることができます。
 他の送信メッセージを TX_FIFOに設定した場合も、同様の手順でメッセ―ジ送信の完了の度に繰り返し割り込みの確認を行うことで、全てのメッセージの送信が完了したことを知ることができます。
-
-CAN TX High Priority Message Register 1～4は、CAN Enable Registerの CAN_ENビットが "0"の状態でも書き込む事が出来ます。
-この場合、メッセージの送信は CAN_ENビットに "1"が書き込まれた後に行われます。
 
 *** フレーム受信操作手順例
 メッセージ受信の手順について説明します。
