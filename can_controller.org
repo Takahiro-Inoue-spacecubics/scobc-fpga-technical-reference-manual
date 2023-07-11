@@ -563,32 +563,45 @@ TX_FIFOを使用したメッセージ送信の手順について説明します�
 
 1: CAN Interrupt Enable Registerの TRNSDNENBビットを "1"に設定します。必要に応じて使用する他の割り込みステータスのイネーブルビットもあわせて設定します。
 
-2: CAN Status Registerの TXFFLビットが "0"の場合は送信メッセージを TX FIFOに書き込むことが出来ます。
-TXFFLビットが "1"の状態の時は TX FIFOが Full状態であるため、新たな送信メッセージを書き込む場合は TX FIFOが Not Full状態になるまで待つ必要があります。
-
-3: CAN TX Message Register 1へ送信メッセージの Standard Message ID (ID1[10:0]), Standard Remote Transmission Request (SRTR), Identifier Extension (IDE), Extended Message ID (ID2[17:0]), Extended Remote Transmission Request (ERTR)フィールドの設定を行います。
+2: CAN TX Message Register 1へ送信メッセージの Standard Message ID (ID1[10:0]), Standard Remote Transmission Request (SRTR), Identifier Extension (IDE), Extended Message ID (ID2[17:0]), Extended Remote Transmission Request (ERTR)フィールドの設定を行います。
 標準フレームを送信する場合はIDEビットを "0"に、拡張フレームを送信する場合は SRTRビットと IDEビットをそれぞれ "1"に設定する必要があります。
 標準フレームを送信する場合は、ID2フィールド、ERTRビットに設定した値は使用されません。
 
-4: CAN TX Message Register 2へ送信メッセージのData Length Code (DLC)フィールドの設定を行います。
+3: CAN TX Message Register 2へ送信メッセージのData Length Code (DLC)フィールドの設定を行います。
 
-5: CAN TX Message Register 3へ送信メッセージの Byte 0から Byte 3までの データフィールドの設定を行います。
-リモートフレームまたは DLCフィールドを 0Byteに設定したデータフレームを送信する場合でもこのレジスタに書き込みを行う必要がありますが、書き込まれた値自体は使用されません。
+送信メッセージのDataフィールドを、CAN TX Message Register3 と CAN TX Message Register4に設定します。
+リモートフレームまたは DLCフィールドを 0Byteに設定したデータフレームを送信する場合は、CAN TX Message Register3 と CAN TX Message Register4の設定 (4: ～ 5:)を省略することができます。
+また、DLCフィールドを 1Byte以上 かつ 4Byte以下に設定したデータフレームを送信する場合は、CAN TX Message Register4の設定 (5:)のみを省略することができます。
 
-6: CAN TX Message Register 4へ送信メッセージの Byte 4から Byte 7までの データフィールドの設定を行います。
-リモートフレームまたは DLCフィールドを 4Byte以下に設定したデータフレームを送信する場合でもこのレジスタに書き込みを行う必要がありますが、書き込まれた値自体は使用されません。
+4: CAN TX Message Register 3へ送信メッセージの Byte 0から Byte 3までの データフィールドの設定を行います。
+リモートフレームまたは DLCフィールドを 0Byteに設定したデータフレームを送信する場合は、このレジスタに設定した値は使用されません。
 
-CAN TX Message Register 1～4全ての書き込みが行われると、CANバスが Idle状態の時にメッセージの送信を開始します。
-TX FIFOは最大 64のメッセージを格納することができ、FIFOが Fullになるまで送信するメッセージを続けて書き込む事が出来ます。
+5: CAN TX Message Register 4へ送信メッセージの Byte 4から Byte 7までの データフィールドの設定を行います。
+リモートフレームまたは DLCフィールドを 4Byte以下に設定したデータフレームを送信する場合は、このレジスタに設定した値は使用されません。
 
-7: 割り込み信号 CAN_INTがアサートした後、CAN Interrupt Status Registerの TRNSDNビットが "1"にセットされていることを確認することで、メッセージ送信が完了したことを知ることができます。
+6: CAN TX Message Control Registerの TXFSDRビットと TXDCEビットを "1"に設定します。
 
-8: メッセージ送信完了の確認後に、CAN Interrupt Status Registerの TRNSDNビットに "1"を書き込んでから、TRNSDNビットがクリアされたことを確認します。
+CAN TX Message Control Registerの書き込みが行われると CAN TX Message Register1, 2, 3, 4に設定したデータがTX FIFOに書き込まれ、CANバスが Idle状態の時にメッセージの送信を開始します。
+TX FIFOは最大 64のメッセージを格納することができ、FIFOが Fullになるまで送信するメッセージを続けて書き込む事ができます。
+
+7: CAN Status Registerの TXFFLビットが "0"の場合は送信メッセージを TX FIFOに書き込むことができます。
+TXFFLビットが "1"の状態の時は TX FIFOが Full状態であるため、新たな送信メッセージを書き込む場合は、1つ以上のメッセージ送信が完了して TX FIFOが Not Full状態になるまで待つ必要があります。
+
+8: メッセージの送信が完了すると、割り込み信号 CAN_INTがアサートし、CAN Interrupt Status Registerの TRNSDNビットが "1"にセットされます。
+
+9: CAN TX Complete Message Identifier Registerから送信が完了したメッセージの識別子 (IDR)フィールドを読み出します。
+TX Message Priority Management機能によりメッセージの送信順序が TX FIFOに格納したメッセージの順序と入れ替わった場合でも、CAN TX Complete Message Identifier Registerから読み出した IDRフィールドを確認することで、送信が完了したのがどのメッセージであるかを認識することができます。
+
+10: CAN Interrupt Status Registerを読み出し、TRNSDNビットがクリアされたことを確認します。
+TRNSDNビットがクリアされていない場合は、他の送信完了メッセージの IDRフィールドが TXCOMPID FIFOに格納されていることを示します。
+TXCOMPID FIFOは最大 64の IDRフィールドを格納することができ、FIFOが Emptyになるまで続けて読み出すことができます。
 
 他の送信メッセージを TX_FIFOに設定した場合は、同様の手順でメッセ―ジ送信の完了の度に繰り返し割り込みの確認を行うことで、全てのメッセージの送信が完了したことを知ることができます。
+但し、CAN TX Message Control Registerの設定時 (6:)に TXDCEビットを "0"に設定した場合は、このときにTX FIFOに書き込まれたメッセージの送信が完了しても IDRフィールドは TXCOMPID FIFOに格納されません。
+これに従い、CAN Interrupt Status Registerの TRNSDNビットはセットされず、割り込み信号 CAN_INTもアサートされないため、TXDCEビットに設定する値により、送信が完了したことの通知の有無をメッセージ毎に指定することができます。
 TX_FIFOに未送信のメッセージが残っていないかは、CAN Status Registerの TXFNEPビットが "0"になっていることで確認することができます。
 
-CAN TX Message Register 1～4は、CAN Enable Registerの CAN_ENビットが "0"の状態でも書き込む事が出来ます。この場合、メッセージの送信は CAN_ENビットに "1"が書き込まれた後に行われます。
+CAN TX Message Register1, 2, 3, 4と CAN TX Message Control Registerは、CAN Enable Registerの CAN_ENビットが "0"の状態でも書き込む事が出来ます。この場合、メッセージの送信は CAN_ENビットに "1"が書き込まれた後に行われます。
 
 **** TX Message Priority Management
 CAN Controllerでは、TX Message Priority Management機能により、TX FIFOに複数のメッセージが格納されている時に優先度の高い送信メッセージから順に送信を行います。
