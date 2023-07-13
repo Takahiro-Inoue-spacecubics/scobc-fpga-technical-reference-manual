@@ -44,7 +44,7 @@ CAN Controllerは、Base Address 0x4040_0000に配置されています。
 | 0x00F0 | CAN_FIFORR | CAN FIFO and Buffer Reset Register          | 0x00000000 |
 | 0x0100 | CAN_STMCR  | CAN Self Test Mode Control Register         | 0x00000000 |
 | 0x0200 | CAN_PSLMCR | CAN PHY Sleep Mode Control Register         | 0x00000000 |
-| 0xF000 | CAN_VER    | CAN Controller IP Version Register          |          - |
+| 0x0F00 | CAN_VER    | CAN Controller IP Version Register          |          - |
 
 *** CAN Enable Register (Offset 0x0000)
 CAN Enable Registerは、CAN通信におけるEnable設定を行うレジスタです。
@@ -497,7 +497,7 @@ Sleep Modeを Enableにすると、CAN Transceiverの送受信回路を OFF (低
 | 31:1 | -        | Reserved       | Reserved                                                                             | -   |
 |    0 | CAN_PSLM | PHY Sleep Mode | CAN Transceiverの Sleep Modeを設定します。0: Sleep Mode Disable 1: Sleep Mode Enable | R/W |
 
-*** CAN Controller IP Version Register (Offset: 0xF000)
+*** CAN Controller IP Version Register (Offset: 0x0F00)
 CAN Controller IPのバージョン管理用レジスタです。
 
 #+CAPTION: CAN Controller IP Version Register ビットフィールド
