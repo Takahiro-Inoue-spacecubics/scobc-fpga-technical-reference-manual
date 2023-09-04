@@ -297,12 +297,12 @@ CAN RX Message Register 3は、受信した CANフレームのデータフィー
 #+CAPTION: CAN RX Message Register 3 ビットフィールド
 |   bit | Symbol    | Field          | Description                                                                                                                                                                                                             | R/W |
 |-------+-----------+----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:24 | CAN_RXDB0 | RX Data Byte 0 | データフィールドの Byte 0を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 1以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
-| 23:16 | CAN_RXDB1 | RX Data Byte 1 | データフィールドの Byte 1を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 2以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
-|  15:8 | CAN_RXDB2 | RX Data Byte 2 | データフィールドの Byte 2を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 3以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
-|   7:0 | CAN_RXDB3 | RX Data Byte 3 | データフィールドの Byte 3を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 4以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+| 31:24 | CAN_RXDB3 | RX Data Byte 3 | データフィールドの Byte 3を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 4以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+| 23:16 | CAN_RXDB2 | RX Data Byte 2 | データフィールドの Byte 2を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 3以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+|  15:8 | CAN_RXDB1 | RX Data Byte 1 | データフィールドの Byte 1を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 2以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+|   7:0 | CAN_RXDB0 | RX Data Byte 0 | データフィールドの Byte 0を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 1以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
 
-*** CAN RX Message Register4 (Offset 0x005C)
+*** CAN RX Message Register 4 (Offset 0x005C)
 CAN RX Message Register 4は、受信した CANフレームのデータフィールドの Byte 4から Byte 7 (Data Word 2)を RX FIFOから読み出すためのレジスタです。
 
 データフレームを受信していない場合でも、このレジスタは読み出しを行う必要があります。
@@ -311,10 +311,10 @@ CAN RX Message Register 4は、受信した CANフレームのデータフィー
 #+CAPTION: CAN RX Message Register 4 ビットフィールド
 |   bit | Symbol    | Field          | Description                                                                                                                                                                                                             | R/W |
 |-------+-----------+----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
-| 31:24 | CAN_RXDB4 | RX Data Byte 4 | データフィールドの Byte 4を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 5以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
-| 23:16 | CAN_RXDB5 | RX Data Byte 5 | データフィールドの Byte 5を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 6以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
-|  15:8 | CAN_RXDB6 | RX Data Byte 6 | データフィールドの Byte 6を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 7以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
-|   7:0 | CAN_RXDB7 | RX Data Byte 7 | データフィールドの Byte 7を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 8以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+| 31:24 | CAN_RXDB7 | RX Data Byte 7 | データフィールドの Byte 7を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 8以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+| 23:16 | CAN_RXDB6 | RX Data Byte 6 | データフィールドの Byte 6を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 7以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+|  15:8 | CAN_RXDB5 | RX Data Byte 5 | データフィールドの Byte 5を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 6以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
+|   7:0 | CAN_RXDB4 | RX Data Byte 4 | データフィールドの Byte 4を RX FIFOから読み出すためのフィールドです。受信データがデータフレームで 且つ、CAN RX Message Register 2の CAN_RXDLCフィールドが 5以上を示す時、このフィールドのデータは有効データとなります。 | RO  |
 
 *** CAN Acceptance Filter Enable Register (Offset 0x0060)
 CAN Acceptance Filter Enable Registerは、CAN Acceptance Filterの設定を行うレジスタです。
