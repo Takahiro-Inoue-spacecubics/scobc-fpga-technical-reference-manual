@@ -457,6 +457,9 @@ SEM Controller State Registerは SC OBC FPGAに実装する、SEM Controllerの�
 Currentステート、Previousステートの全てのビットが Highにセットされているとき、SEM Controllerに重大なエラーが起きた事を示します。
 また、全てのビットが Lowにクリアされているとき、SEM Controllerは IDLE状態である事を示します。
 
+このレジスタはシステムリセットによる初期化が行われません。
+System Registerにある Code Memory Select Register の ITCMENビットを変更してシステムリセットが発行されている最中も、このレジスタには常に最新のステートの状態が更新されます。
+
 #+CAPTION: SEM Controller State Registerビットフィールド
 |   bit | Symbol            | Field                             | Description                                                                                                                                                                                                              | R/W |
 |-------+-------------------+-----------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----|
@@ -476,6 +479,9 @@ Currentステート、Previousステートの全てのビットが Highにセッ
 *** SEM Error Correction Count Register (Offset 0x0044)
 SEM Error Correction Count Registerは、SEM Controllerが行ったエラー訂正数をカウントします。
 
+このレジスタはシステムリセットによる初期化が行われません。
+System Registerにある Code Memory Select Register の ITCMENビットを変更してシステムリセットが発行されている最中も、このレジスタには常に最新のエラー訂正数が更新されます。
+
 #+CAPTION: SEM Error Correction Count Registerビットフィールド
 |   bit | Symbol    | Field                | Description                                                                                                                        | R/W  |
 |-------+-----------+----------------------+------------------------------------------------------------------------------------------------------------------------------------+------|
@@ -485,6 +491,9 @@ SEM Error Correction Count Registerは、SEM Controllerが行ったエラー訂�
 *** SEM Heartbeat Timeout Register (Offset 0x0048)
 SEM Heartbeat Timeout Registeは SEM Controllerが出力する Heartbeat信号の Timeout時間を設定するレジスタです。
 AMD (旧 Xilinx) の SEM Controller (v4.1)では、Heartbeat信号のアサート間隔は 150クロックと規定されており、本レジスタの値は修正する必要はありません。
+
+このレジスタは、SC OBC FPGAの Configuration後に一度だけ初期化されます。
+System Registerにある Code Memory Select Registerの ITCMENビットが変更された時に発行されるシステムリセットでは、このレジスタはクリアされません。
 
 #+CAPTION: SEM Heartbeat Timeout Registerビットフィールド
 |  bit | Symbol   | Field                   | Description                                                                                                                                                                                                                                   | R/W |
@@ -500,6 +509,9 @@ SEM Error Injection Command Register は、SEM Controller のエラー挿入機�
 
 SEM Controller へのコマンド送信は、SEM Error Injection Command Register 2 への書き込みをきっかけに行われます。
 そのため、SEM Error Injection Command Register 1 への書き込みは、必ず SEM Error Injection Command Register 2 の書き込み前に行ってください。
+
+このレジスタは、SC OBC FPGAの Configuration後に一度だけ初期化されます。
+System Registerにある Code Memory Select Registerの ITCMENビットが変更された時に発行されるシステムリセットでは、このレジスタはクリアされません。
 
 #+CAPTION: SEM Error Injection Command Register 1ビットフィールド
 |  bit | Symbol   | Field             | Description                                                                                                                                        | R/W |
