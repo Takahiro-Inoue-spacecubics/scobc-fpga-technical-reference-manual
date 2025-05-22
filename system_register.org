@@ -17,6 +17,7 @@ System Registerは、Base Address 0x4F00_0000に配置されています。
 | 0x0004 | SYSREG_SYSCLKCTL | System Clock Control Register       | 0x00000001 |
 | 0x0008 | SYSREG_PLLINFO   | PLL Infomation Register             | 0x00280014 |
 | 0x0010 | SYSREG_CFGMEMCTL | Configuration Flash Memory Register | 0x000x0000 |
+| 0x0014 | SYSREG_BOOTSTS   | Boot Status Register                |          - |
 | 0x0020 | SYSREG_PWRCYCLE  | Power Cycle Register                | 0x00000000 |
 | 0x0030 | SYSREG_PWRMANAGE | Power Management Register           | 0x00000000 |
 | 0x00F0 | SYSREG_SPAD1     | Scratchpad 1 Register               | 0x00000000 |
@@ -116,6 +117,24 @@ Configuration Flash Memoryへのアクセス開始は、必ず CFGMEMMONビッ�
 
 現状の SC OBC FPGAには QSPIコアによる Configuration Flash Memoryのメモリパトロール機能は実装されていません。
 CFGMEMOWNERビットは必ず "0"に設定し使用してください。
+
+*** Boot Status Register (Offset 0x0014)
+SC OBC FPGAのBoot Statusを示すレジスタです。
+SC OBC FPGAのConfigurationが完了した時に FPGA Configuration Registerの Boot History Status Register(Address: 0x16)にアクセスを行い、読み出した値をこのレジスタに格納します。
+
+このレジスタの Bit1 は、現在起動しているConfiguration DataのFALLBACKステータスが格納されます。
+Bit1 が '0' の場合は通常のConfiguration Data、Bit1 が '1' の場合はFALLBACKのConfiguration Dataにより起動していることを示します。
+FPGAのマルチブート機能を使用している場合、ユーザーはこのレジスタを読み出すことによって、現在起動しているConfiguration Dataを知ることができます。
+
+FALLBACKステータスビット以外に関する Boot History Status Registerの詳細は AMD (旧 Xilinx社) のドキュメント (UG470: 7シリーズ コンフィギュレーション ユーザーガイド)を参照してください。
+
+このレジスタはシステムリセットによる初期化が行われません。
+Code Memory Select Register の ITCMENビットを変更してシステムリセットが発行された場合も、SC OBC FPGAの起動が完了した時に格納したBoot Statusの値が保持されます。
+
+#+CAPTION: Boot Status Register ビットフィールド
+|  bit | Symbol  | Field       | Description                                                            | R/W |
+|------+---------+-------------+------------------------------------------------------------------------+-----|
+| 31:0 | BOOTSTS | Boot Status | Boot History Status Registerから読み出した値が格納されるレジスタです。 | RO  |
 
 *** Power Cycle Register (Offset 0x0020)
 Power Cycle Registerは SC OBC FPGAに対する Power Cycle要求を発行するためのレジスタです。
