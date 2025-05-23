@@ -60,12 +60,11 @@ System Clock Control Registerは、システム内部で使われるクロック
 CLKMODE信号の設定値と、PLLの状態 及び システムクロック周波数の関係は以下となります。
 
 #+CAPTION: CLKMODE設定と PLL状態 及び クロック周波数の関係
-| CLKMODE[1:0]    | PLL Status       | REF_CLK                  | SYS_CLK                  | MAXI_CLK                 | USER_CLK1 / USER_CLK2                             |
-|-----------------+------------------+--------------------------+--------------------------+--------------------------+---------------------------------------------------|
-| 0b00            | PowerDown        | 24 MHz (Reference Clock) | 24 MHz (Reference Clock) | 24 MHz (Reference Clock) | RTLパラメータにより設定 (Stop or Reference Clock) |
-| 0b01            | Normal Operation | 24 MHz (Reference Clock) | 48 MHz (PLL Output)      | 48 MHz (PLL Output)      | RTLパラメータにより設定 (PLL Output)              |
-| 0b10            | Normal Operation | 24 MHz (Reference Clock) | 96 MHz (PLL Output)      | 96 MHz (PLL Output)      | RTLパラメータにより設定 (PLL Output)              |
-| 0b11 (設定禁止) | -                | -                        | -                        | -                        | -                                                 |
+| CLKMODE[1:0]          | PLL Status       | REF_CLK                  | SYS_CLK                  | MAXI_CLK                 | USER_CLK1 / USER_CLK2                             |
+|-----------------------+------------------+--------------------------+--------------------------+--------------------------+---------------------------------------------------|
+| 0b00                  | PowerDown        | 24 MHz (Reference Clock) | 24 MHz (Reference Clock) | 24 MHz (Reference Clock) | RTLパラメータにより設定 (Stop or Reference Clock) |
+| 0b01                  | Normal Operation | 24 MHz (Reference Clock) | 48 MHz (PLL Output)      | 48 MHz (PLL Output)      | RTLパラメータにより設定 (PLL Output)              |
+| 0b10, 0b11 (設定禁止) | -                | -                        | -                        | -                        | -                                                 |
 
 *** PLL Infomation Register (Offset 0x0008)
 PLL Infomation Registerは、システムクロックの設定状況を示すレジスタです。
