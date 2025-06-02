@@ -1,0 +1,185 @@
+* Mission Bus System (User Design Logic Area)
+  :PROPERTIES:
+  :version:  0.1
+  :base_address: 0x50000000
+  :size:     0x10000000
+  :END:
+
+Mission Bus Systemは、ユーザーが CubeSatのミッションを行うための IPコアを接続するシステムです。
+リファレンスデザインの Mission Bus Systemには、Defaultの構成として UART、I2C、SPI、GPIOの IPコアを実装し、Mission Bus Systemに接続しています。
+本章では Mission Bus Systemを Default構成で使用する場合のメモリマップや割り込み仕様について説明します。
+
+** Memory Map
+以下に、Mission Bus Systemのメモリマップを示します。
+
+#+CAPTION: Mission Bus System Memory map of default configuration
+[[file:./images/UDL_MemoryMap.svg]]
+
+#+CAPTION: Mission Bus System メモリマップ (Default構成)
+| Field              | Address Space             | Comment      |
+|--------------------+---------------------------+--------------|
+| Mission(UDL) Bus   | 0x5000_0000 - 0x5FFF_FFFF |              |
+| - UART Lite 1      | 0x5000_0000 - 0x5000_FFFF |              |
+| - UART Lite 2      | 0x5001_0000 - 0x5001_FFFF |              |
+| - UART Lite 3      | 0x5002_0000 - 0x5002_FFFF |              |
+| - UART Lite 4      | 0x5003_0000 - 0x5003_FFFF |              |
+| - UART Lite 5      | 0x5004_0000 - 0x5004_FFFF |              |
+| - UART Lite 6      | 0x5005_0000 - 0x5005_FFFF |              |
+| - I2C Controller 1 | 0x5006_0000 - 0x5006_FFFF |              |
+| - I2C Controller 2 | 0x5007_0000 - 0x5007_FFFF |              |
+| - SPI Controller   | 0x5008_0000 - 0x5008_FFFF | Using AMD IP |
+| - GPIO Controller  | 0x5009_0000 - 0x5009_FFFF | Using AMD IP |
+
+** Interrupt
+以下に、Mission Bus Systemの IPコアが出力する割り込みの割り当てを示します。
+
+#+CAPTION: Mission Bus System割り込みリスト (Default構成)
+| Exception No. | IRQ Bit | Interrupt        | Type  |
+|---------------+---------+------------------+-------|
+|            32 | [16]    | UART Lite 1      | Pulse |
+|            33 | [17]    | UART Lite 2      | Pulse |
+|            34 | [18]    | UART Lite 3      | Pulse |
+|            35 | [19]    | UART Lite 4      | Pulse |
+|            36 | [20]    | UART Lite 5      | Pulse |
+|            37 | [21]    | UART Lite 6      | Pulse |
+|            38 | [22]    | I2C Controller 1 | Level |
+|            39 | [23]    | I2C Controller 2 | Level |
+|            40 | [24]    | SPI Controller   | Level |
+|            41 | [25]    | GPIO Controller  | Level |
+|       42 - 47 | [31:26] | Reserved         | -     |
+
+** UART Lite
+Default構成の Mission Bus Systemには 6つのAHB UART Lite IPコアが実装されています。
+これらの IPコアは、いずれも Low Performance IP Bus Systemの AHB UART Liteと同じ IPコアが実装されています。
+
+各コアは以下のアドレスに配置されています。
+
+#+CAPTION: Mission Bus System UART Lite ベースアドレス(Default構成)
+| IP Core     | Base Address |
+|-------------+--------------|
+| UART Lite 1 | 0x5000_0000  |
+| UART Lite 2 | 0x5001_0000  |
+| UART Lite 3 | 0x5002_0000  |
+| UART Lite 4 | 0x5003_0000  |
+| UART Lite 5 | 0x5004_0000  |
+| UART Lite 6 | 0x5005_0000  |
+
+各コアの信号が接続されている User IO Interfaceを以下に示します。
+
+#+CAPTION: Mission Bus System UART Lite 信号接続 (Default構成)
+| IP Core     | Signal  | FPGA Direction | User IO  | BtoB Pin No. |
+|-------------+---------+----------------+----------+--------------|
+| UART Lite 1 | UART_TX | Output         | UIO1[0]  |            7 |
+|             | UART_RX | Input          | UIO1[1]  |            8 |
+| UART Lite 2 | UART_TX | Output         | UIO1[2]  |            9 |
+|             | UART_RX | Input          | UIO1[3]  |           10 |
+| UART Lite 3 | UART_TX | Output         | UIO1[4]  |           11 |
+|             | UART_RX | Input          | UIO1[5]  |           12 |
+| UART Lite 4 | UART_TX | Output         | UIO1[6]  |           13 |
+|             | UART_RX | Input          | UIO1[7]  |           14 |
+| UART Lite 5 | UART_TX | Output         | UIO1[8]  |           16 |
+|             | UART_RX | Input          | UIO1[9]  |           17 |
+| UART Lite 6 | UART_TX | Output         | UIO1[10] |           18 |
+|             | UART_RX | Input          | UIO1[11] |           19 |
+
+AHB UART Lite IPコアのレジスタ詳細仕様は [[file:./ahb_uart_lite.org][10. AHB Uart Lite]] を参照してください。
+
+** I2C Controller
+Default構成の Mission Bus Systemには 2つのI2C Controller IPコアが実装されています。
+これらの IPコアは、いずれも Low Performance IP Bus Systemの I2C Controllerと同じ IPコアが実装されています。
+
+各コアは以下のアドレスに配置されています。
+
+#+CAPTION: Mission Bus System I2C Controller ベースアドレス(Default構成)
+| IP Core          | Base Address |
+|------------------+--------------|
+| I2C Controller 1 | 0x5006_0000  |
+| I2C Controller 2 | 0x5007_0000  |
+
+各コアの信号が接続されている User IO Interfaceを以下に示します。
+
+#+CAPTION: Mission Bus System I2C Controller 信号接続 (Default構成)
+| IP Core          | Signal  | FPGA Direction | User IO  | BtoB Pin No. |
+|------------------+---------+----------------+----------+--------------|
+| I2C Controller 1 | I2C_SCL | Inout          | UIO1[12] |           20 |
+|                  | I2C_SDA | Inout          | UIO1[13] |           21 |
+| I2C Controller 2 | I2C_SCL | Inout          | UIO1[14] |           22 |
+|                  | I2C_SDA | Inout          | UIO1[15] |           23 |
+
+I2C Controller IPコアのレジスタ詳細仕様は [[file:./i2c_master_controller.org][11. I2C Master Controller]] を参照してください。
+
+** SPI Controller
+Default構成の Mission Bus Systemには 1つのSPI Controller IPコアが実装されています。
+この IPコアは、AMDの AXI Quad SPI IPコアが実装されています。
+
+SPI Controller IPコアは、以下のパラメータ設定により生成しています。
+以下に記載が無いパラメータは、全てデフォルトの設定値により生成されています。
+
+#+CAPTION: SPI Controller パラメータ設定
+| Parameter                | Value | Description                                    |
+|--------------------------+-------+------------------------------------------------|
+| Enable XIP Mode          |     0 | エンハンストモード (XIP Mode disable)          |
+| Enable Performance Mode  |     0 | レガシモード (AXI4-Lite I/F)                   |
+| SPI Mode                 |     0 | スタンダード SPI                               |
+| Transaction Width        |     8 | 8bit単位による SPI転送                         |
+| Frequency Ratio          |     2 | SCK出力が外部 SPIクロック入力の 2分周 (4.8MHz) |
+| No. of Slaves            |     3 | スレーブデバイス数: 3                          |
+| Enable Master Mode       |     1 | マスター SPIモード                             |
+| Slave Device             |     0 | 対応するスレーブデバイスの種類: Mixed          |
+| FIFO Depth               |    16 | FIFOの深さ: 16                                 |
+| Enable STARTUP Primitive |     0 | STARTUPプリミティブ: 未使用                    |
+| Enable Async Clock Mode  |     1 | AXIクロック入力と外部 SPIクロック入力が非同期  |
+
+SPI Controller IPコアは、Base Address 0x5008_0000に配置されています。
+
+IP Coreの信号が接続されている User IO Interfaceを以下に示します。
+
+#+CAPTION: Mission Bus System SPI Controller 信号接続 (Default構成)
+| Signal | FPGA Direction | User IO | BtoB Pin No. |
+|--------+----------------+---------+--------------|
+| SCK    | Output         | UIO2[0] |           74 |
+| MOSI   | Output         | UIO2[1] |           73 |
+| MISO   | Input          | UIO2[2] |           72 |
+| CS[0]  | Output         | UIO2[3] |           71 |
+| CS[1]  | Output         | UIO2[4] |           70 |
+| CS[2]  | Output         | UIO2[5] |           69 |
+
+SPI Controller IPコアのレジスタ詳細仕様は [[https://docs.amd.com/r/en-US/pg153-axi-quad-spi][AXI Quad SPI LogiCORE IP Product Guide (PG153)]] を参照してください。
+
+** GPIO Controller
+Default構成の Mission Bus Systemには 1つのGPIO Controller IPコアが実装されています。
+この IPコアは、AMDの AXI GPIO IPコアが実装されています。
+
+GPIO Controller IPコアは、以下のパラメータ設定により生成しています。
+以下に記載が無いパラメータは、全てデフォルトの設定値により生成されています。
+
+#+CAPTION: GPIO Controller パラメータ設定
+| Parameter        | Value | Description                  |
+|------------------+-------+------------------------------|
+| GPIO Width       |    16 | GPIOチャネルのビット幅: 16※ |
+| Enable Interrupt |     1 | 割り込み機能: 有効           |
+
+※ User IO Interfaceに接続している GPIOは 10bitですが、レジスタにより制御するビットと User IO Interfaceのビット番号を合わせるため 16に設定しています。
+   このため、IPの各レジスタのビットフィールドには 16bitの制御ビットが実装されていますが、実際に使用するビットフィールドは[15:6]となっており、[5:0]は未使用(未接続)です。
+
+GPIO Controller IPコアは、Base Address 0x5009_0000に配置されています。
+
+IP Coreの信号が接続されている User IO Interfaceを以下に示します。
+
+#+CAPTION: Mission Bus System GPIO Controller 信号接続 (Default構成)
+| Signal    | FPGA Direction | User IO  | BtoB Pin No. |
+|-----------+----------------+----------+--------------|
+| GPIO[5:0] | No Connection  | -        |            - |
+| GPIO[6]   | Inout          | UIO2[6]  |           68 |
+| GPIO[7]   | Inout          | UIO2[7]  |           67 |
+| GPIO[8]   | Inout          | UIO2[8]  |           65 |
+| GPIO[9]   | Inout          | UIO2[9]  |           64 |
+| GPIO[10]  | Inout          | UIO2[10] |           63 |
+| GPIO[11]  | Inout          | UIO2[11] |           62 |
+| GPIO[12]  | Inout          | UIO2[12] |           61 |
+| GPIO[13]  | Inout          | UIO2[13] |           60 |
+| GPIO[14]  | Inout          | UIO2[14] |           59 |
+| GPIO[15]  | Inout          | UIO2[15] |           58 |
+
+GPIO Controller IPコアのレジスタ詳細仕様は [[https://docs.amd.com/v/u/en-US/pg144-axi-gpio][AXI GPIO v2.0 LogiCORE IP Product Guide (PG144)]] を参照してください。
+
