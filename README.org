@@ -15,5 +15,5 @@ SC OBC FPGAの開発や、ソフトウェアの開発に必要な、FPGA機能�
 - [[file:./qspi_controller.org][8. QSPI Controller]]
 - [[file:./can_controller.org][9. CAN Controller]]
 - [[file:./ahb_uart_lite.org][10. AHB Uart Lite]]
-- [[file:./i2c_master_controller.org][11. I2C Master Controller]]
+- [[file:./i2c_master_controller.org][11. I2C Controller]]
 - [[file:./mission_bus_system.org][12. Mission Bus System (User Design Logic Area)]]
